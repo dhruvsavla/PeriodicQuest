@@ -1,0 +1,92 @@
+import 'package:flutter/material.dart';
+
+import 'package:app/features/quiz/models/quiz_language.dart';
+
+class QuizLanguageToggle extends StatelessWidget {
+  const QuizLanguageToggle({
+    super.key,
+    required this.selectedLanguage,
+    required this.onChanged,
+  });
+
+  final QuizLanguage selectedLanguage;
+  final ValueChanged<QuizLanguage> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = QuizStrings.of(selectedLanguage);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _LanguageChip(
+              label: strings.englishLabel,
+              isSelected: selectedLanguage == QuizLanguage.english,
+              activeColor: colorScheme.primary,
+              onTap: () => onChanged(QuizLanguage.english),
+            ),
+            const SizedBox(width: 6),
+            _LanguageChip(
+              label: strings.spanishLabel,
+              isSelected: selectedLanguage == QuizLanguage.spanish,
+              activeColor: colorScheme.primary,
+              onTap: () => onChanged(QuizLanguage.spanish),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LanguageChip extends StatelessWidget {
+  const _LanguageChip({
+    required this.label,
+    required this.isSelected,
+    required this.activeColor,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isSelected;
+  final Color activeColor;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? activeColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : const Color(0xFF28415A),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+}

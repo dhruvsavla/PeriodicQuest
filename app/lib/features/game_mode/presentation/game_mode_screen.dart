@@ -10,11 +10,20 @@ import '../../../shared/widgets/animated_cloud.dart';
 import '../../../shared/widgets/sparkle_band.dart';
 import '../../../shared/widgets/twinkling_sparkle_field.dart';
 import '../../../shared/widgets/pill_back_button.dart';
+import '../../quiz/data/quiz_question_generator.dart';
+import '../../quiz/presentation/quiz_home_page.dart';
 import '../../explore/presentation/explore_screen.dart';
 import 'game_mode_icons.dart';
 
 class GameModePage extends StatefulWidget {
-  const GameModePage({super.key});
+  const GameModePage({
+    super.key,
+    this.quizQuestionGenerator = const QuizQuestionGenerator(),
+    this.quizRandomSeed,
+  });
+
+  final QuizQuestionGenerator quizQuestionGenerator;
+  final int? quizRandomSeed;
 
   @override
   State<GameModePage> createState() => _GameModePageState();
@@ -138,13 +147,22 @@ class _GameModePageState extends State<GameModePage>
                         ),
                       ),
                       SizedBox(height: lh * 0.025),
-                      const _ModeCard(
+                      _ModeCard(
                         bg: Color(0xFFFFD04A),
                         border: Color(0xFFDDA800),
                         iconBg: Color(0xFFFFEA90),
                         iconPainter: RobotIconPainter(),
                         title: AppStrings.quizMode,
                         subtitle: AppStrings.quizModeSubtitle,
+                        onTap: () => Navigator.push(
+                          context,
+                          slideRoute(
+                            QuizHomePage(
+                              questionGenerator: widget.quizQuestionGenerator,
+                              randomSeed: widget.quizRandomSeed,
+                            ),
+                          ),
+                        ),
                       ),
                       SizedBox(height: lh * 0.025),
                       const _ModeCard(
