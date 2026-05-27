@@ -35,6 +35,7 @@ class PeriodicPuzzleOptionCard extends StatelessWidget {
       onTap: onTap,
       isSelected: isSelected,
       isIncorrect: isIncorrect,
+      density: QuizOptionButtonDensity.compact,
     );
   }
 

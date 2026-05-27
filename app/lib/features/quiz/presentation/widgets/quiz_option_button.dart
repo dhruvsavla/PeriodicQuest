@@ -6,6 +6,8 @@ import 'package:app/features/quiz/models/quiz_language.dart';
 import 'package:app/features/quiz/models/quiz_question.dart';
 import 'package:app/features/quiz/presentation/widgets/quiz_element_card_style.dart';
 
+enum QuizOptionButtonDensity { regular, compact }
+
 class QuizOptionButton extends StatelessWidget {
   const QuizOptionButton({
     super.key,
@@ -18,6 +20,7 @@ class QuizOptionButton extends StatelessWidget {
     this.isCorrect = false,
     this.isIncorrect = false,
     this.isDisabled = false,
+    this.density = QuizOptionButtonDensity.regular,
   });
 
   final QuizAnswerOption option;
@@ -29,6 +32,7 @@ class QuizOptionButton extends StatelessWidget {
   final bool isCorrect;
   final bool isIncorrect;
   final bool isDisabled;
+  final QuizOptionButtonDensity density;
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +70,52 @@ class QuizOptionButton extends StatelessWidget {
           ),
         ),
       ),
+    final card = LayoutBuilder(
+      builder: (context, constraints) {
+        final compact =
+            density == QuizOptionButtonDensity.compact ||
+            constraints.maxWidth < 250;
+        final tight =
+            density == QuizOptionButtonDensity.compact &&
+            (constraints.maxWidth <= 420 || constraints.maxHeight < 190);
+        final radius = tight ? 18.0 : (compact ? 22.0 : 28.0);
+
+        return _AnimatedShake(
+          active: isIncorrect,
+          child: AnimatedScale(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutBack,
+            scale: isCorrect ? 1.03 : (isSelected ? 1.015 : 1),
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 180),
+              opacity: isDisabled && !isSelected && !isCorrect && !isIncorrect
+                  ? 0.76
+                  : 1,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 240),
+                curve: Curves.easeOutCubic,
+                padding: EdgeInsets.all(tight ? 10 : (compact ? 14 : 18)),
+                decoration: BoxDecoration(
+                  gradient: _gradientForState(style),
+                  borderRadius: BorderRadius.circular(radius),
+                  border: Border.all(
+                    color: _borderColorForState(style),
+                    width: isSelected || isCorrect || isIncorrect ? 2.4 : 1.8,
+                  ),
+                  boxShadow: _shadowsForState(style),
+                ),
+                child: _buildCardBody(
+                  label: label,
+                  style: style,
+                  statusColor: _accentColorForState(style),
+                  compact: compact,
+                  tight: tight,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
 
     return Material(
@@ -168,6 +218,8 @@ class QuizOptionButton extends StatelessWidget {
     required String label,
     required QuizElementCardStyle style,
     required Color statusColor,
+    required bool compact,
+    required bool tight,
   }) {
     if (questionType == QuizQuestionType.symbol) {
       return Column(
@@ -183,6 +235,24 @@ class QuizOptionButton extends StatelessWidget {
           const SizedBox(height: 18),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
+              _PrefixBadge(
+                prefix: prefix,
+                foregroundColor: statusColor,
+                compact: compact,
+              ),
+              const Spacer(),
+              Icon(
+                _statusIcon,
+                color: _statusColor,
+                size: tight ? 18 : (compact ? 20 : 24),
+              ),
+            ],
+          ),
+          SizedBox(height: tight ? 6 : (compact ? 8 : 18)),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: tight ? 2 : (compact ? 4 : 12),
+            ),
             child: Center(
               child: Text(
                 label,
@@ -190,6 +260,7 @@ class QuizOptionButton extends StatelessWidget {
                 style: TextStyle(
                   color: statusColor,
                   fontSize: 40,
+                  fontSize: tight ? 20 : (compact ? 24 : 40),
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.2,
                 ),
@@ -200,6 +271,10 @@ class QuizOptionButton extends StatelessWidget {
             alignment: Alignment.center,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: EdgeInsets.symmetric(
+                horizontal: tight ? 6 : (compact ? 8 : 12),
+                vertical: tight ? 3 : (compact ? 4 : 6),
+              ),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(999),
@@ -209,6 +284,7 @@ class QuizOptionButton extends StatelessWidget {
                 style: TextStyle(
                   color: statusColor,
                   fontWeight: FontWeight.w800,
+                  fontSize: tight ? 10 : (compact ? 11 : null),
                 ),
               ),
             ),
@@ -230,6 +306,11 @@ class QuizOptionButton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _PrefixBadge(prefix: prefix, foregroundColor: statusColor),
+            _PrefixBadge(
+              prefix: prefix,
+              foregroundColor: statusColor,
+              compact: compact,
+            ),
             const Spacer(),
             if (showAtomicNumber && option.atomicNumber != null)
               _FloatingBadge(
@@ -250,6 +331,28 @@ class QuizOptionButton extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.78),
               borderRadius: BorderRadius.circular(20),
+                compact: compact,
+              ),
+            if (showAtomicNumber && option.atomicNumber != null)
+              const SizedBox(width: 8),
+            Icon(
+              _statusIcon,
+              color: _statusColor,
+              size: tight ? 18 : (compact ? 20 : 24),
+            ),
+          ],
+        ),
+        SizedBox(height: tight ? 8 : (compact ? 10 : 16)),
+        if (showSymbol && option.elementSymbol != null)
+          Container(
+            width: tight ? 38 : (compact ? 48 : 68),
+            height: tight ? 38 : (compact ? 48 : 68),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.78),
+              borderRadius: BorderRadius.circular(
+                tight ? 12 : (compact ? 14 : 20),
+              ),
               border: Border.all(color: statusColor.withValues(alpha: 0.16)),
             ),
             child: Text(
@@ -257,6 +360,7 @@ class QuizOptionButton extends StatelessWidget {
               style: TextStyle(
                 color: statusColor,
                 fontSize: 28,
+                fontSize: tight ? 16 : (compact ? 20 : 28),
                 fontWeight: FontWeight.w900,
               ),
             ),
@@ -275,6 +379,21 @@ class QuizOptionButton extends StatelessWidget {
         Wrap(
           spacing: 8,
           runSpacing: 8,
+          SizedBox(height: tight ? 6 : (compact ? 8 : 14)),
+        Text(
+          label,
+          maxLines: tight ? 1 : 2,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: statusColor,
+            fontSize: tight ? 13 : (compact ? 16 : 22),
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        SizedBox(height: tight ? 6 : (compact ? 8 : 12)),
+        Wrap(
+          spacing: tight ? 4 : (compact ? 6 : 8),
+          runSpacing: tight ? 4 : (compact ? 6 : 8),
           children: [
             if (showCategory && option.localizedCategory(language) != null)
               _MetadataChip(
@@ -283,17 +402,24 @@ class QuizOptionButton extends StatelessWidget {
                 backgroundColor: style.badgeColor,
               ),
             if (showSymbol && option.elementSymbol != null)
+                compact: compact,
+              ),
+            if (!tight && showSymbol && option.elementSymbol != null)
               _MetadataChip(
                 text: option.elementSymbol!,
                 foregroundColor: style.foregroundColor,
                 backgroundColor: style.badgeColor,
               ),
             if (showAtomicNumber && option.atomicNumber != null)
+                compact: compact,
+              ),
+            if (!tight && showAtomicNumber && option.atomicNumber != null)
               _MetadataChip(
                 text:
                     '${language == QuizLanguage.spanish ? 'Atómico' : 'Atomic'} ${option.atomicNumber}',
                 foregroundColor: style.foregroundColor,
                 backgroundColor: style.badgeColor,
+                compact: compact,
               ),
           ],
         ),
@@ -354,12 +480,23 @@ class _PrefixBadge extends StatelessWidget {
 
   final String prefix;
   final Color foregroundColor;
+  const _PrefixBadge({
+    required this.prefix,
+    required this.foregroundColor,
+    required this.compact,
+  });
+
+  final String prefix;
+  final Color foregroundColor;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 36,
       height: 36,
+      width: compact ? 30 : 36,
+      height: compact ? 30 : 36,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.78),
@@ -368,6 +505,11 @@ class _PrefixBadge extends StatelessWidget {
       child: Text(
         prefix,
         style: TextStyle(color: foregroundColor, fontWeight: FontWeight.w900),
+        style: TextStyle(
+          color: foregroundColor,
+          fontWeight: FontWeight.w900,
+          fontSize: compact ? 12 : null,
+        ),
       ),
     );
   }
@@ -378,11 +520,24 @@ class _FloatingBadge extends StatelessWidget {
 
   final String text;
   final Color foregroundColor;
+  const _FloatingBadge({
+    required this.text,
+    required this.foregroundColor,
+    required this.compact,
+  });
+
+  final String text;
+  final Color foregroundColor;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 8 : 10,
+        vertical: compact ? 4 : 6,
+      ),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.72),
         borderRadius: BorderRadius.circular(999),
@@ -393,6 +548,7 @@ class _FloatingBadge extends StatelessWidget {
           color: foregroundColor,
           fontWeight: FontWeight.w900,
           fontSize: 12,
+          fontSize: compact ? 11 : 12,
         ),
       ),
     );
@@ -404,16 +560,22 @@ class _MetadataChip extends StatelessWidget {
     required this.text,
     required this.foregroundColor,
     required this.backgroundColor,
+    required this.compact,
   });
 
   final String text;
   final Color foregroundColor;
   final Color backgroundColor;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 8 : 10,
+        vertical: compact ? 5 : 6,
+      ),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(999),
@@ -424,6 +586,7 @@ class _MetadataChip extends StatelessWidget {
           color: foregroundColor,
           fontWeight: FontWeight.w800,
           fontSize: 12,
+          fontSize: compact ? 11 : 12,
         ),
       ),
     );

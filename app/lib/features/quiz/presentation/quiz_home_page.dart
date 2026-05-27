@@ -10,6 +10,7 @@ import 'package:app/features/quiz/puzzle/presentation/periodic_puzzle_home_page.
 import 'package:app/features/quiz/puzzle/models/periodic_puzzle_strings.dart';
 import 'package:app/features/quiz/presentation/widgets/quiz_language_toggle.dart';
 import 'package:app/features/quiz/presentation/widgets/quiz_mode_card.dart';
+import 'package:app/features/quiz/presentation/widgets/quiz_responsive_layout.dart';
 import 'package:app/shared/decorations/app_gradients.dart';
 import 'package:app/shared/widgets/pill_back_button.dart';
 
@@ -85,6 +86,73 @@ class _QuizHomePageState extends State<QuizHomePage> {
                               },
                             ),
                           ],
+              final layout = QuizResponsiveLayout.resolve(
+                context,
+                constraints,
+                maxContentWidth: 860,
+              );
+
+              return Align(
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  width: layout.contentWidth,
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(
+                      layout.horizontalPadding,
+                      layout.topPadding,
+                      layout.horizontalPadding,
+                      layout.bottomPadding,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        LayoutBuilder(
+                          builder: (context, _) {
+                            if (layout.stackTopBar) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  PillBackButton(
+                                    contentWidth: layout.contentWidth,
+                                    foreground: const Color(0xFF3D6B80),
+                                    label: strings.backToGameModesLabel,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: QuizLanguageToggle(
+                                      selectedLanguage: _selectedLanguage,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _selectedLanguage = value;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                PillBackButton(
+                                  contentWidth: layout.contentWidth,
+                                  foreground: const Color(0xFF3D6B80),
+                                  label: strings.backToGameModesLabel,
+                                ),
+                                const Spacer(),
+                                QuizLanguageToggle(
+                                  selectedLanguage: _selectedLanguage,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedLanguage = value;
+                                    });
+                                  },
+                                ),
+                              ],
+                            );
+                          },
                         ),
                         const SizedBox(height: 16),
                         QuizModeCard(

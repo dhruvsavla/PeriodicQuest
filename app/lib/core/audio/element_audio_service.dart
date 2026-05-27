@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 import '../../domain/elements/chemical_element.dart';
@@ -21,22 +22,28 @@ class ElementAudioService {
   final ValueNotifier<bool> isPlaying = ValueNotifier(false);
 
   bool _initialised = false;
+  bool _ttsAvailable = true;
 
   // ─── Initialisation ────────────────────────────────────────────────────────
 
   Future<void> init() async {
     if (_initialised) return;
     _initialised = true;
+    try {
+      await _tts.setLanguage('en-US');
+      await _tts.setSpeechRate(0.42); // slower, easier for children
+      await _tts.setPitch(1.12); // slightly warm/friendly tone
+      await _tts.setVolume(1.0);
 
-    await _tts.setLanguage('en-US');
-    await _tts.setSpeechRate(0.42); // slower, easier for children
-    await _tts.setPitch(1.12); // slightly warm/friendly tone
-    await _tts.setVolume(1.0);
-
-    _tts.setStartHandler(() => isPlaying.value = true);
-    _tts.setCompletionHandler(() => isPlaying.value = false);
-    _tts.setCancelHandler(() => isPlaying.value = false);
-    _tts.setErrorHandler((_) => isPlaying.value = false);
+      _tts.setStartHandler(() => isPlaying.value = true);
+      _tts.setCompletionHandler(() => isPlaying.value = false);
+      _tts.setCancelHandler(() => isPlaying.value = false);
+      _tts.setErrorHandler((_) => isPlaying.value = false);
+    } on MissingPluginException {
+      _ttsAvailable = false;
+    } catch (_) {
+      _ttsAvailable = false;
+    }
   }
 
   // ─── Public API ────────────────────────────────────────────────────────────
@@ -46,9 +53,30 @@ class ElementAudioService {
   /// Stops any in-progress narration first so tapping multiple elements
   /// quickly never overlaps audio.
   Future<void> speakElement(ChemicalElement element) async {
-    await stop();
     final text = '${element.name}. ${element.fact}';
-    await _tts.speak(text);
+    await speakText(text: text, languageCode: 'en-US');
+  }
+
+  /// Speaks arbitrary text in a given language code.
+  Future<void> speakText({
+    required String text,
+    required String languageCode,
+  }) async {
+    if (!_initialised) {
+      await init();
+    }
+    if (!_ttsAvailable) {
+      return;
+    }
+    try {
+      await stop();
+      await _tts.setLanguage(languageCode);
+      await _tts.speak(text);
+    } on MissingPluginException {
+      _ttsAvailable = false;
+    } catch (_) {
+      _ttsAvailable = false;
+    }
   }
 
   /// Speaks arbitrary text (used for compound announcements in Lab Experiment).
@@ -59,9 +87,19 @@ class ElementAudioService {
 
   /// Stops narration immediately.
   Future<void> stop() async {
+    if (!_ttsAvailable) {
+      return;
+    }
     if (isPlaying.value) {
-      await _tts.stop();
-      isPlaying.value = false;
+      try {
+        await _tts.stop();
+      } on MissingPluginException {
+        _ttsAvailable = false;
+      } catch (_) {
+        _ttsAvailable = false;
+      } finally {
+        isPlaying.value = false;
+      }
     }
   }
 

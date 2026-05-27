@@ -9,6 +9,7 @@ import 'package:app/features/quiz/models/quiz_mode_type.dart';
 import 'package:app/features/quiz/models/quiz_session_result.dart';
 import 'package:app/features/quiz/presentation/quiz_game_page.dart';
 import 'package:app/features/quiz/presentation/widgets/quiz_language_toggle.dart';
+import 'package:app/features/quiz/presentation/widgets/quiz_responsive_layout.dart';
 import 'package:app/shared/decorations/app_gradients.dart';
 import 'package:app/shared/widgets/pill_back_button.dart';
 
@@ -147,6 +148,106 @@ class _QuizResultPageState extends State<QuizResultPage> {
                 ),
               ),
             ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final layout = QuizResponsiveLayout.resolve(
+                context,
+                constraints,
+                maxContentWidth: 900,
+              );
+
+              return Align(
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  width: layout.contentWidth,
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(
+                      layout.horizontalPadding,
+                      layout.topPadding,
+                      layout.horizontalPadding,
+                      layout.bottomPadding,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildTopBar(context),
+                        const SizedBox(height: 18),
+                        _buildScoreCard(),
+                        const SizedBox(height: 20),
+                        if (_qualifies) ...[
+                          _buildHighScorePanel(),
+                          const SizedBox(height: 20),
+                        ],
+                        if (_showsLeaderboard) ...[
+                          _buildLeaderboardCard(leaderboardEntries),
+                          const SizedBox(height: 20),
+                        ],
+                        _buildReviewHeader(),
+                        const SizedBox(height: 14),
+                        for (final answer
+                            in widget.result.answeredQuestions) ...[
+                          _buildAnswerReview(answer),
+                          const SizedBox(height: 12),
+                        ],
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.pushReplacement(
+                              context,
+                              slideRoute(
+                                QuizGamePage(
+                                  mode: widget.result.mode,
+                                  initialLanguage: _language,
+                                  questionGenerator: widget.questionGenerator,
+                                  leaderboardRepository: _leaderboardRepository,
+                                  randomSeed: widget.randomSeed,
+                                ),
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: Size.fromHeight(
+                                layout.compactCard ? 50 : 54,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(22),
+                              ),
+                            ),
+                            child: Text(
+                              _strings.playAgainLabel,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.pop(context, _language),
+                            style: OutlinedButton.styleFrom(
+                              minimumSize: Size.fromHeight(
+                                layout.compactCard ? 50 : 54,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(22),
+                              ),
+                            ),
+                            child: Text(
+                              _strings.backToQuizMenuLabel,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -157,11 +258,19 @@ class _QuizResultPageState extends State<QuizResultPage> {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth < 720) {
+        final layout = QuizResponsiveLayout.resolve(
+          context,
+          constraints,
+          maxContentWidth: 900,
+        );
+
+        if (layout.stackTopBar) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PillBackButton(
                 contentWidth: constraints.maxWidth,
+                contentWidth: layout.contentWidth,
                 foreground: const Color(0xFF3D6B80),
                 label: _strings.backToQuizMenuLabel,
                 onTap: () => Navigator.pop(context, _language),
@@ -186,6 +295,7 @@ class _QuizResultPageState extends State<QuizResultPage> {
           children: [
             PillBackButton(
               contentWidth: constraints.maxWidth,
+              contentWidth: layout.contentWidth,
               foreground: const Color(0xFF3D6B80),
               label: _strings.backToQuizMenuLabel,
               onTap: () => Navigator.pop(context, _language),
@@ -312,6 +422,115 @@ class _QuizResultPageState extends State<QuizResultPage> {
           ),
         ],
       ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 500;
+        return Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(compact ? 16 : 24),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFFFFF0A6), Color(0xFFFFC8E0)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(compact ? 24 : 30),
+            border: Border.all(color: const Color(0xFFFFD06B), width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFFFB84D).withValues(alpha: 0.24),
+                blurRadius: compact ? 18 : 24,
+                offset: Offset(0, compact ? 8 : 12),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      _strings.scoreBurstLabel,
+                      style: const TextStyle(
+                        color: Color(0xFF6E4B1A),
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    widget.result.mode == QuizModeType.quick ? '⚡' : '🏆',
+                    style: TextStyle(fontSize: compact ? 24 : 30),
+                  ),
+                ],
+              ),
+              SizedBox(height: compact ? 12 : 16),
+              Text(
+                _strings.resultsLabel,
+                style: TextStyle(
+                  color: const Color(0xFF17334A),
+                  fontSize: compact ? 28 : 34,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              SizedBox(height: compact ? 10 : 12),
+              TweenAnimationBuilder<int>(
+                tween: IntTween(begin: 0, end: score),
+                duration: const Duration(milliseconds: 700),
+                builder: (context, value, child) {
+                  return Text(
+                    _strings.scoreText(value, total),
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      color: const Color(0xFF17334A),
+                      fontWeight: FontWeight.w900,
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: compact ? 8 : 10),
+              Text(
+                _strings.encouragementText(score, total),
+                style: TextStyle(
+                  color: const Color(0xFF3E5F7B),
+                  fontWeight: FontWeight.w800,
+                  fontSize: compact ? 16 : 18,
+                ),
+              ),
+              SizedBox(height: compact ? 12 : 14),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  _ScorePill(
+                    icon: Icons.emoji_events_outlined,
+                    label: '${_strings.scoreLabel}: $score/$total',
+                  ),
+                  _ScorePill(
+                    icon: Icons.lightbulb_outline,
+                    label: _strings.hintsLeftText(
+                      widget.result.mode == QuizModeType.challenge
+                          ? widget.result.mode.totalHints -
+                                widget.result.hintsUsed
+                          : 0,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
