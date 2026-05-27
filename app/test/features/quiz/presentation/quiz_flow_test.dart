@@ -17,6 +17,47 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   const generator = QuizQuestionGenerator();
 
+  testWidgets(
+    'Quiz screens keep back button near top in portrait and landscape',
+    (tester) async {
+      final sizes = <Size>[const Size(834, 1194), const Size(1194, 834)];
+
+      for (final size in sizes) {
+        tester.view
+          ..physicalSize = size
+          ..devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: QuizHomePage(questionGenerator: generator, randomSeed: 4),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final homeBackButton = find.text('Back to game modes');
+        expect(homeBackButton, findsOneWidget);
+        expect(tester.getTopLeft(homeBackButton).dy, lessThan(140));
+
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: QuizGamePage(
+              mode: QuizModeType.challenge,
+              initialLanguage: QuizLanguage.english,
+              questionGenerator: generator,
+              randomSeed: 9,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final gameBackButton = find.text('Back to quiz menu');
+        expect(gameBackButton, findsOneWidget);
+        expect(tester.getTopLeft(gameBackButton).dy, lessThan(140));
+      }
+    },
+  );
+
   testWidgets('Tapping Quiz Mode from GameModePage opens Quiz Home page', (
     tester,
   ) async {

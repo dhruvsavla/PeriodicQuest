@@ -13,6 +13,41 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   const generator = PeriodicPuzzleGenerator();
 
+  testWidgets(
+    'Puzzle screens keep back button near top in portrait and landscape',
+    (tester) async {
+      final board = generator
+          .boardsForLayer(PeriodicPuzzleLayer.starter)
+          .single;
+      final sizes = <Size>[const Size(834, 1194), const Size(1194, 834)];
+
+      for (final size in sizes) {
+        tester.view
+          ..physicalSize = size
+          ..devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+
+        await tester.pumpWidget(
+          const MaterialApp(home: PeriodicPuzzleHomePage()),
+        );
+        await tester.pumpAndSettle();
+
+        final homeBackButton = find.text('Back to quiz menu');
+        expect(homeBackButton, findsOneWidget);
+        expect(tester.getTopLeft(homeBackButton).dy, lessThan(140));
+
+        await tester.pumpWidget(
+          MaterialApp(home: PeriodicPuzzleGamePage(board: board)),
+        );
+        await tester.pumpAndSettle();
+
+        final gameBackButton = find.text('Back to quiz menu');
+        expect(gameBackButton, findsOneWidget);
+        expect(tester.getTopLeft(gameBackButton).dy, lessThan(140));
+      }
+    },
+  );
+
   testWidgets('QuizHomePage shows Periodic Puzzle card and opens it', (
     tester,
   ) async {

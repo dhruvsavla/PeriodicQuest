@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:app/core/router/app_navigation.dart';
 import 'package:app/features/quiz/models/quiz_language.dart';
 import 'package:app/features/quiz/presentation/widgets/quiz_language_toggle.dart';
+import 'package:app/features/quiz/presentation/widgets/quiz_responsive_layout.dart';
 import 'package:app/features/quiz/puzzle/data/periodic_puzzle_best_times_repository.dart';
 import 'package:app/features/quiz/puzzle/data/periodic_puzzle_generator.dart';
 import 'package:app/features/quiz/puzzle/data/periodic_puzzle_progress_repository.dart';
@@ -107,200 +108,253 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
         height: double.infinity,
         decoration: const BoxDecoration(gradient: AppGradients.skyBlue),
         child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 900),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final layout = QuizResponsiveLayout.resolve(
+                context,
+                constraints,
+                maxContentWidth: 900,
+              );
+
+              return Align(
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  width: layout.contentWidth,
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(
+                      layout.horizontalPadding,
+                      layout.topPadding,
+                      layout.horizontalPadding,
+                      layout.bottomPadding,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        PillBackButton(
-                          contentWidth: 900,
-                          foreground: const Color(0xFF3D6B80),
-                          label: _strings.backToQuizMenuLabel,
-                          onTap: () => Navigator.pop(context, _language),
-                        ),
-                        const Spacer(),
-                        QuizLanguageToggle(
-                          selectedLanguage: _language,
-                          onChanged: (value) {
-                            setState(() {
-                              _language = value;
-                            });
+                        LayoutBuilder(
+                          builder: (context, _) {
+                            if (layout.stackTopBar) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  PillBackButton(
+                                    contentWidth: layout.contentWidth,
+                                    foreground: const Color(0xFF3D6B80),
+                                    label: _strings.backToQuizMenuLabel,
+                                    onTap: () =>
+                                        Navigator.pop(context, _language),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: QuizLanguageToggle(
+                                      selectedLanguage: _language,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _language = value;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+
+                            return Row(
+                              children: [
+                                PillBackButton(
+                                  contentWidth: layout.contentWidth,
+                                  foreground: const Color(0xFF3D6B80),
+                                  label: _strings.backToQuizMenuLabel,
+                                  onTap: () =>
+                                      Navigator.pop(context, _language),
+                                ),
+                                const Spacer(),
+                                QuizLanguageToggle(
+                                  selectedLanguage: _language,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _language = value;
+                                    });
+                                  },
+                                ),
+                              ],
+                            );
                           },
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFFFF0A6), Color(0xFFCFF3FF)],
-                        ),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _strings.puzzleCompleteLabel,
-                            style: const TextStyle(
-                              color: Color(0xFF17334A),
-                              fontSize: 24,
-                              fontWeight: FontWeight.w900,
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(18),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFFFF0A6), Color(0xFFCFF3FF)],
                             ),
+                            borderRadius: BorderRadius.circular(24),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            widget.board.titleFor(_language),
-                            style: const TextStyle(
-                              color: Color(0xFF35566F),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          TweenAnimationBuilder<int>(
-                            tween: IntTween(begin: 0, end: boardProgress.stars),
-                            duration: const Duration(milliseconds: 650),
-                            builder: (context, value, child) {
-                              return Text(
-                                '⭐' * value,
-                                style: const TextStyle(fontSize: 30),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 12),
-                          Wrap(
-                            spacing: 12,
-                            runSpacing: 12,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _ResultChip(
-                                label: _strings.totalTimeText(_elapsedTime),
-                              ),
-                              _ResultChip(
-                                label: _strings.mistakesText(
-                                  boardProgress.mistakes,
+                              Text(
+                                _strings.puzzleCompleteLabel,
+                                style: const TextStyle(
+                                  color: Color(0xFF17334A),
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w900,
                                 ),
                               ),
-                              _ResultChip(
-                                label:
-                                    '${_strings.hintsUsedLabel}: ${boardProgress.hintsUsed}',
+                              const SizedBox(height: 4),
+                              Text(
+                                widget.board.titleFor(_language),
+                                style: const TextStyle(
+                                  color: Color(0xFF35566F),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
-                              _ResultChip(
-                                label: _strings.starsText(boardProgress.stars),
+                              const SizedBox(height: 10),
+                              TweenAnimationBuilder<int>(
+                                tween: IntTween(
+                                  begin: 0,
+                                  end: boardProgress.stars,
+                                ),
+                                duration: const Duration(milliseconds: 650),
+                                builder: (context, value, child) {
+                                  return Text(
+                                    '⭐' * value,
+                                    style: const TextStyle(fontSize: 30),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 12),
+                              Wrap(
+                                spacing: 12,
+                                runSpacing: 12,
+                                children: [
+                                  _ResultChip(
+                                    label: _strings.totalTimeText(_elapsedTime),
+                                  ),
+                                  _ResultChip(
+                                    label: _strings.mistakesText(
+                                      boardProgress.mistakes,
+                                    ),
+                                  ),
+                                  _ResultChip(
+                                    label:
+                                        '${_strings.hintsUsedLabel}: ${boardProgress.hintsUsed}',
+                                  ),
+                                  _ResultChip(
+                                    label: _strings.starsText(
+                                      boardProgress.stars,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 14),
+                              Text(
+                                isFinalBoard
+                                    ? _strings.greatJobLabel
+                                    : _strings.unlockedNextLayerLabel,
+                                style: const TextStyle(
+                                  color: Color(0xFF2C4E6E),
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 14),
-                          Text(
-                            isFinalBoard
-                                ? _strings.greatJobLabel
-                                : _strings.unlockedNextLayerLabel,
-                            style: const TextStyle(
-                              color: Color(0xFF2C4E6E),
-                              fontWeight: FontWeight.w800,
+                        ),
+                        if (isFinalBoard) ...[
+                          const SizedBox(height: 18),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.92),
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _strings.greatJobLabel,
+                                  style: Theme.of(context).textTheme.titleLarge
+                                      ?.copyWith(
+                                        color: const Color(0xFF17334A),
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                ),
+                                const SizedBox(height: 12),
+                                _ResultChip(
+                                  label: _strings.totalTimeText(_elapsedTime),
+                                ),
+                                const SizedBox(height: 8),
+                                _ResultChip(
+                                  label:
+                                      '${_strings.mistakesLabel}: $totalMistakes',
+                                ),
+                                const SizedBox(height: 8),
+                                _ResultChip(
+                                  label:
+                                      '${_strings.hintsUsedLabel}: $totalHintsUsed',
+                                ),
+                                const SizedBox(height: 8),
+                                _ResultChip(
+                                  label:
+                                      '${_strings.starsSummaryLabel}: $totalStars',
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    if (isFinalBoard) ...[
-                      const SizedBox(height: 18),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.92),
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _strings.greatJobLabel,
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(
-                                    color: const Color(0xFF17334A),
-                                    fontWeight: FontWeight.w900,
-                                  ),
+                          const SizedBox(height: 18),
+                          if (qualifiesForBestTimes) ...[
+                            _buildBestTimeEntryPanel(
+                              totalStars: totalStars,
+                              totalMistakes: totalMistakes,
+                              totalHintsUsed: totalHintsUsed,
                             ),
-                            const SizedBox(height: 12),
-                            _ResultChip(
-                              label: _strings.totalTimeText(_elapsedTime),
-                            ),
-                            const SizedBox(height: 8),
-                            _ResultChip(
-                              label:
-                                  '${_strings.mistakesLabel}: $totalMistakes',
-                            ),
-                            const SizedBox(height: 8),
-                            _ResultChip(
-                              label:
-                                  '${_strings.hintsUsedLabel}: $totalHintsUsed',
-                            ),
-                            const SizedBox(height: 8),
-                            _ResultChip(
-                              label:
-                                  '${_strings.starsSummaryLabel}: $totalStars',
-                            ),
+                            const SizedBox(height: 18),
                           ],
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      if (qualifiesForBestTimes) ...[
-                        _buildBestTimeEntryPanel(
-                          totalStars: totalStars,
-                          totalMistakes: totalMistakes,
-                          totalHintsUsed: totalHintsUsed,
-                        ),
-                        const SizedBox(height: 18),
-                      ],
-                      _buildBestTimesCard(bestTimeEntries),
-                    ],
-                    const SizedBox(height: 20),
-                    if (widget.board.layer == PeriodicPuzzleLayer.groups &&
-                        nextGroupBoard != null)
-                      _PrimaryButton(
-                        key: const Key('puzzle-next-group'),
-                        label: _strings.nextGroupLabel,
-                        onTap: () => _openBoard(nextGroupBoard),
-                      )
-                    else if (!isFinalBoard)
-                      _PrimaryButton(
-                        key: const Key('puzzle-next-layer'),
-                        label: _strings.nextLayerLabel,
-                        onTap: () => _openNextLayer(),
-                      )
-                    else
-                      _PrimaryButton(
-                        label: _strings.playAgainLabel,
-                        onTap: _playAgain,
-                      ),
-                    const SizedBox(height: 12),
-                    _SecondaryButton(
-                      label: _strings.backToQuizMenuLabel,
-                      onTap: () => Navigator.pushReplacement(
-                        context,
-                        slideRoute(
-                          PeriodicPuzzleHomePage(
-                            generator: widget.generator,
-                            progressRepository: _progressRepository,
-                            bestTimesRepository: _bestTimesRepository,
-                            initialLanguage: _language,
+                          _buildBestTimesCard(bestTimeEntries),
+                        ],
+                        const SizedBox(height: 20),
+                        if (widget.board.layer == PeriodicPuzzleLayer.groups &&
+                            nextGroupBoard != null)
+                          _PrimaryButton(
+                            key: const Key('puzzle-next-group'),
+                            label: _strings.nextGroupLabel,
+                            onTap: () => _openBoard(nextGroupBoard),
+                          )
+                        else if (!isFinalBoard)
+                          _PrimaryButton(
+                            key: const Key('puzzle-next-layer'),
+                            label: _strings.nextLayerLabel,
+                            onTap: () => _openNextLayer(),
+                          )
+                        else
+                          _PrimaryButton(
+                            label: _strings.playAgainLabel,
+                            onTap: _playAgain,
+                          ),
+                        const SizedBox(height: 12),
+                        _SecondaryButton(
+                          label: _strings.backToQuizMenuLabel,
+                          onTap: () => Navigator.pushReplacement(
+                            context,
+                            slideRoute(
+                              PeriodicPuzzleHomePage(
+                                generator: widget.generator,
+                                progressRepository: _progressRepository,
+                                bestTimesRepository: _bestTimesRepository,
+                                initialLanguage: _language,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ),
       ),

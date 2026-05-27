@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:app/core/audio/element_audio_service.dart';
 import 'package:app/core/router/app_navigation.dart';
 import 'package:app/features/quiz/models/quiz_language.dart';
 import 'package:app/features/quiz/presentation/widgets/quiz_language_toggle.dart';
+import 'package:app/features/quiz/presentation/widgets/quiz_responsive_layout.dart';
 import 'package:app/features/quiz/puzzle/data/periodic_puzzle_best_times_repository.dart';
 import 'package:app/features/quiz/puzzle/data/periodic_puzzle_generator.dart';
 import 'package:app/features/quiz/puzzle/data/periodic_puzzle_progress_repository.dart';
@@ -43,11 +45,13 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
   late QuizLanguage _language;
   late PeriodicPuzzleBoardProgress _boardProgress;
   late Duration _elapsedTime;
+  final ElementAudioService _audioService = ElementAudioService.instance;
   String? _selectedTileId;
   String? _completedTileId;
   String? _incorrectOptionId;
   String? _hintTileId;
   bool? _lastAnswerWasCorrect;
+  String? _lastNarratedClueKey;
 
   PeriodicPuzzleProgressRepository get _progressRepository =>
       widget.progressRepository ?? PeriodicPuzzleProgressRepository.instance;
@@ -95,10 +99,17 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
         _elapsedTime = _progressRepository.elapsedTime;
       });
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _speakSelectedTileClue();
+    });
   }
 
   @override
   void dispose() {
+    _audioService.stop();
     _ticker?.cancel();
     super.dispose();
   }
@@ -111,75 +122,133 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
         height: double.infinity,
         decoration: const BoxDecoration(gradient: AppGradients.skyBlue),
         child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 980),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final layout = QuizResponsiveLayout.resolve(
+                context,
+                constraints,
+                maxContentWidth: 980,
+              );
+
+              return Align(
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  width: layout.contentWidth,
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(
+                      layout.horizontalPadding,
+                      layout.topPadding,
+                      layout.horizontalPadding,
+                      layout.bottomPadding,
+                    ),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        PillBackButton(
-                          contentWidth: 980,
-                          foreground: const Color(0xFF3D6B80),
-                          label: _strings.backToQuizMenuLabel,
-                          onTap: () => Navigator.pop(context, _language),
-                        ),
-                        const Spacer(),
-                        QuizLanguageToggle(
-                          selectedLanguage: _language,
-                          onChanged: (value) {
-                            setState(() {
-                              _language = value;
-                            });
+                        LayoutBuilder(
+                          builder: (context, _) {
+                            if (layout.stackTopBar) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  PillBackButton(
+                                    contentWidth: layout.contentWidth,
+                                    foreground: const Color(0xFF3D6B80),
+                                    label: _strings.backToQuizMenuLabel,
+                                    onTap: () {
+                                      _audioService.stop();
+                                      Navigator.pop(context, _language);
+                                    },
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: QuizLanguageToggle(
+                                      selectedLanguage: _language,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _language = value;
+                                        });
+                                        _speakSelectedTileClue(force: true);
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                PillBackButton(
+                                  contentWidth: layout.contentWidth,
+                                  foreground: const Color(0xFF3D6B80),
+                                  label: _strings.backToQuizMenuLabel,
+                                  onTap: () {
+                                    _audioService.stop();
+                                    Navigator.pop(context, _language);
+                                  },
+                                ),
+                                const Spacer(),
+                                QuizLanguageToggle(
+                                  selectedLanguage: _language,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _language = value;
+                                    });
+                                    _speakSelectedTileClue(force: true);
+                                  },
+                                ),
+                              ],
+                            );
                           },
+                        ),
+                        const SizedBox(height: 12),
+                        _buildHeader(),
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.92),
+                            borderRadius: BorderRadius.circular(28),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              PeriodicPuzzleBoardWidget(
+                                board: widget.board,
+                                language: _language,
+                                filledTileIds: _boardProgress.filledTileIds,
+                                selectedTileId: _selectedTileId,
+                                completedTileId: _completedTileId,
+                                onTileTap: (tile) {
+                                  setState(() {
+                                    _selectedTileId = tile.id;
+                                  });
+                                  _speakSelectedTileClue(force: true);
+                                },
+                                localizedNameForTile: (tile) =>
+                                    widget.generator.localizedElementName(
+                                      tile.element,
+                                      _language,
+                                    ),
+                              ),
+                              if (_isComplete) ...[
+                                const SizedBox(height: 18),
+                                _buildCompleteBanner(),
+                              ] else ...[
+                                const SizedBox(height: 18),
+                                _buildSelectionPanel(),
+                              ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    _buildHeader(),
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.92),
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          PeriodicPuzzleBoardWidget(
-                            board: widget.board,
-                            language: _language,
-                            filledTileIds: _boardProgress.filledTileIds,
-                            selectedTileId: _selectedTileId,
-                            completedTileId: _completedTileId,
-                            onTileTap: (tile) {
-                              setState(() {
-                                _selectedTileId = tile.id;
-                              });
-                            },
-                            localizedNameForTile: (tile) => widget.generator
-                                .localizedElementName(tile.element, _language),
-                          ),
-                          if (_isComplete) ...[
-                            const SizedBox(height: 18),
-                            _buildCompleteBanner(),
-                          ] else ...[
-                            const SizedBox(height: 18),
-                            _buildSelectionPanel(),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ),
       ),
@@ -285,8 +354,39 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
                 ),
               ),
               const SizedBox(height: 12),
-              Row(
+              Wrap(
+                spacing: 12,
+                runSpacing: 10,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
+                  ValueListenableBuilder<bool>(
+                    valueListenable: _audioService.isPlaying,
+                    builder: (context, isPlaying, _) {
+                      return FilledButton.tonalIcon(
+                        onPressed: () {
+                          if (isPlaying) {
+                            _audioService.stop();
+                            return;
+                          }
+                          _speakSelectedTileClue(force: true);
+                        },
+                        icon: Icon(
+                          isPlaying
+                              ? Icons.stop_circle_outlined
+                              : Icons.volume_up,
+                        ),
+                        label: Text(
+                          isPlaying
+                              ? (_language == QuizLanguage.spanish
+                                    ? 'Detener audio'
+                                    : 'Stop audio')
+                              : (_language == QuizLanguage.spanish
+                                    ? 'Repetir pista'
+                                    : 'Replay clue'),
+                        ),
+                      );
+                    },
+                  ),
                   FilledButton.tonalIcon(
                     onPressed: _boardProgress.hintsRemaining > 0
                         ? _useHint
@@ -294,7 +394,6 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
                     icon: const Icon(Icons.lightbulb_outline),
                     label: Text(_strings.useHintLabel),
                   ),
-                  const SizedBox(width: 12),
                   Text(
                     _strings.hintsRemainingText(_boardProgress.hintsRemaining),
                     style: const TextStyle(
@@ -519,9 +618,15 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
         _selectedTileId = tile.id;
       }
     });
+    if (tile.id == selectedOptionId && next.isComplete) {
+      _audioService.stop();
+    } else {
+      _speakSelectedTileClue();
+    }
   }
 
   void _openResult() {
+    _audioService.stop();
     Navigator.pushReplacement(
       context,
       slideRoute(
@@ -534,6 +639,30 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _speakSelectedTileClue({bool force = false}) async {
+    if (_isComplete) {
+      return;
+    }
+    final tile = _selectedTile ?? _firstOpenTile;
+    final clueText = tile?.clue?.textFor(_language);
+    if (tile == null || clueText == null || clueText.isEmpty) {
+      return;
+    }
+    final key = '${tile.id}-${_language.name}';
+    if (!force && _lastNarratedClueKey == key) {
+      return;
+    }
+    _lastNarratedClueKey = key;
+    await _audioService.speakText(
+      text: clueText,
+      languageCode: _languageCodeFor(_language),
+    );
+  }
+
+  String _languageCodeFor(QuizLanguage language) {
+    return language == QuizLanguage.spanish ? 'es-ES' : 'en-US';
   }
 }
 
