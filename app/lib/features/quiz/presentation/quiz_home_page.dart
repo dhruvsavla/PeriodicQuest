@@ -57,6 +57,35 @@ class _QuizHomePageState extends State<QuizHomePage> {
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
+              final contentWidth = constraints.maxWidth
+                  .clamp(320.0, 860.0)
+                  .toDouble();
+              return Center(
+                child: SizedBox(
+                  width: contentWidth,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            PillBackButton(
+                              contentWidth: contentWidth,
+                              foreground: const Color(0xFF3D6B80),
+                              label: strings.backToGameModesLabel,
+                            ),
+                            const Spacer(),
+                            QuizLanguageToggle(
+                              selectedLanguage: _selectedLanguage,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedLanguage = value;
+                                });
+                              },
+                            ),
+                          ],
               final layout = QuizResponsiveLayout.resolve(
                 context,
                 constraints,

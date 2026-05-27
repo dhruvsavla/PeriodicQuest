@@ -12,6 +12,7 @@ import '../../../shared/widgets/twinkling_sparkle_field.dart';
 import '../../../shared/widgets/pill_back_button.dart';
 import '../../quiz/data/quiz_question_generator.dart';
 import '../../quiz/presentation/quiz_home_page.dart';
+import '../../adventure/presentation/adventure_screen.dart';
 import '../../explore/presentation/explore_screen.dart';
 import 'game_mode_icons.dart';
 
@@ -165,13 +166,17 @@ class _GameModePageState extends State<GameModePage>
                         ),
                       ),
                       SizedBox(height: lh * 0.025),
-                      const _ModeCard(
-                        bg: Color(0xFFCCAEF5),
-                        border: Color(0xFF9B72D8),
-                        iconBg: Color(0xFFE8D5FF),
-                        iconPainter: StarIconPainter(),
+                      _ModeCard(
+                        bg: const Color(0xFFCCAEF5),
+                        border: const Color(0xFF9B72D8),
+                        iconBg: const Color(0xFFE8D5FF),
+                        iconPainter: const StarIconPainter(),
                         title: AppStrings.adventureMode,
                         subtitle: AppStrings.adventureModeSubtitle,
+                        onTap: () => Navigator.push(
+                          context,
+                          slideRoute(const AdventurePage()),
+                        ),
                       ),
                     ],
                   ),

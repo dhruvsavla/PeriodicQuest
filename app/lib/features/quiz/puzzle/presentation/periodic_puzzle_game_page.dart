@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:app/core/router/app_navigation.dart';
+import 'package:app/features/quiz/models/quiz_language.dart';
+import 'package:app/features/quiz/presentation/widgets/quiz_language_toggle.dart';
 import 'package:app/core/audio/element_audio_service.dart';
 import 'package:app/core/router/app_navigation.dart';
 import 'package:app/features/quiz/models/quiz_language.dart';
@@ -122,6 +125,75 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
         height: double.infinity,
         decoration: const BoxDecoration(gradient: AppGradients.skyBlue),
         child: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 980),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        PillBackButton(
+                          contentWidth: 980,
+                          foreground: const Color(0xFF3D6B80),
+                          label: _strings.backToQuizMenuLabel,
+                          onTap: () => Navigator.pop(context, _language),
+                        ),
+                        const Spacer(),
+                        QuizLanguageToggle(
+                          selectedLanguage: _language,
+                          onChanged: (value) {
+                            setState(() {
+                              _language = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _buildHeader(),
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.92),
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          PeriodicPuzzleBoardWidget(
+                            board: widget.board,
+                            language: _language,
+                            filledTileIds: _boardProgress.filledTileIds,
+                            selectedTileId: _selectedTileId,
+                            completedTileId: _completedTileId,
+                            onTileTap: (tile) {
+                              setState(() {
+                                _selectedTileId = tile.id;
+                              });
+                            },
+                            localizedNameForTile: (tile) => widget.generator
+                                .localizedElementName(tile.element, _language),
+                          ),
+                          if (_isComplete) ...[
+                            const SizedBox(height: 18),
+                            _buildCompleteBanner(),
+                          ] else ...[
+                            const SizedBox(height: 18),
+                            _buildSelectionPanel(),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           child: LayoutBuilder(
             builder: (context, constraints) {
               final layout = QuizResponsiveLayout.resolve(
@@ -354,6 +426,8 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
                 ),
               ),
               const SizedBox(height: 12),
+              Row(
+                children: [
               Wrap(
                 spacing: 12,
                 runSpacing: 10,
@@ -394,6 +468,7 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
                     icon: const Icon(Icons.lightbulb_outline),
                     label: Text(_strings.useHintLabel),
                   ),
+                  const SizedBox(width: 12),
                   Text(
                     _strings.hintsRemainingText(_boardProgress.hintsRemaining),
                     style: const TextStyle(
@@ -618,6 +693,9 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
         _selectedTileId = tile.id;
       }
     });
+  }
+
+  void _openResult() {
     if (tile.id == selectedOptionId && next.isComplete) {
       _audioService.stop();
     } else {
