@@ -51,6 +51,12 @@ class ElementAudioService {
     await _tts.speak(text);
   }
 
+  /// Speaks arbitrary text (used for compound announcements in Lab Experiment).
+  Future<void> speakText(String text) async {
+    await stop();
+    await _tts.speak(text);
+  }
+
   /// Stops narration immediately.
   Future<void> stop() async {
     if (isPlaying.value) {
