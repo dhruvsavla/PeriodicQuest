@@ -8,17 +8,21 @@ import '../../core/constants/app_strings.dart';
 class PillBackButton extends StatelessWidget {
   final double contentWidth;
   final Color foreground;
+  final String? label;
+  final VoidCallback? onTap;
 
   const PillBackButton({
     super.key,
     required this.contentWidth,
     required this.foreground,
+    this.label,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.maybePop(context),
+      onTap: onTap ?? () => Navigator.maybePop(context),
       child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: math.max(12.0, contentWidth * 0.033),
@@ -45,7 +49,7 @@ class PillBackButton extends StatelessWidget {
             ),
             const SizedBox(width: 3),
             Text(
-              AppStrings.back,
+              label ?? AppStrings.back,
               style: TextStyle(
                 color: foreground,
                 fontWeight: FontWeight.w700,
