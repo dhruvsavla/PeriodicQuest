@@ -21,9 +21,10 @@ class StoryProgress {
     return total;
   }
 
-  bool isChapterComplete(int chapterId, int questCount) =>
-      List.generate(questCount, (i) => i)
-          .every((i) => isQuestCompleted(chapterId, i));
+  bool isChapterComplete(int chapterId, int questCount) => List.generate(
+    questCount,
+    (i) => i,
+  ).every((i) => isQuestCompleted(chapterId, i));
 
   int get totalStars => _starsMap.values.fold(0, (a, b) => a + b);
 

@@ -192,7 +192,8 @@ class _AdventureHomeScreenState extends State<AdventureHomeScreen>
               child: ListView.separated(
                 padding: EdgeInsets.fromLTRB(sw * 0.05, 0, sw * 0.05, 32),
                 itemCount: kStoryChapters.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 18),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 18),
                 itemBuilder: (context, i) {
                   final chapter = kStoryChapters[i];
                   final isUnlocked = totalStars >= chapter.unlockRequiredStars;
@@ -269,9 +270,7 @@ class _StarPill extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.15),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -366,10 +365,8 @@ class _ChapterCardState extends State<_ChapterCard>
       onTapCancel: () => _pressCtrl.forward(),
       child: AnimatedBuilder(
         animation: _pressCtrl,
-        builder: (context, child) => Transform.scale(
-          scale: _pressCtrl.value,
-          child: child,
-        ),
+        builder: (context, child) =>
+            Transform.scale(scale: _pressCtrl.value, child: child),
         child: Container(
           decoration: BoxDecoration(
             gradient: unlocked
@@ -476,10 +473,7 @@ class _UnlockedContent extends StatelessWidget {
             ),
           ),
           child: Center(
-            child: Text(
-              chapter.emoji,
-              style: const TextStyle(fontSize: 28),
-            ),
+            child: Text(chapter.emoji, style: const TextStyle(fontSize: 28)),
           ),
         ),
 
@@ -572,8 +566,9 @@ class _UnlockedContent extends StatelessWidget {
                           boxShadow: done && stars == 3
                               ? [
                                   BoxShadow(
-                                    color: chapter.accentColor
-                                        .withValues(alpha: 0.6),
+                                    color: chapter.accentColor.withValues(
+                                      alpha: 0.6,
+                                    ),
                                     blurRadius: 6,
                                   ),
                                 ]
@@ -626,9 +621,7 @@ class _LockedContent extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.white.withValues(alpha: 0.05),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.10),
-            ),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
           ),
           child: Center(
             child: Text(

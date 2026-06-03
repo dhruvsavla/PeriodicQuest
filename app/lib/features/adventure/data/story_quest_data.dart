@@ -24,8 +24,10 @@ const kStoryChapters = <StoryChapter>[
             'En los primeros momentos tras el Big Bang, el universo forjó su bloque más simple. Este elemento constituye el 75% de toda la materia ordinaria y alimenta cada estrella del cosmos, incluyendo nuestro Sol.',
         sceneEmoji: '☀️',
         type: QuestType.identify,
-        challenge: 'Identify the lightest element — the first born in the universe.',
-        challengeEs: 'Identifica el elemento más ligero, el primero nacido en el universo.',
+        challenge:
+            'Identify the lightest element — the first born in the universe.',
+        challengeEs:
+            'Identifica el elemento más ligero, el primero nacido en el universo.',
         targetZ: 1,
         distractorZs: [2, 6, 7, 8, 9, 15, 16, 17],
       ),
@@ -57,10 +59,26 @@ const kStoryChapters = <StoryChapter>[
         challenge: 'Which element has atomic number 6?',
         challengeEs: '¿Qué elemento tiene el número atómico 6?',
         options: [
-          MultiChoiceOption(elementZ: 5, label: 'Boron  ·  B  ·  5', isCorrect: false),
-          MultiChoiceOption(elementZ: 6, label: 'Carbon  ·  C  ·  6', isCorrect: true),
-          MultiChoiceOption(elementZ: 7, label: 'Nitrogen  ·  N  ·  7', isCorrect: false),
-          MultiChoiceOption(elementZ: 8, label: 'Oxygen  ·  O  ·  8', isCorrect: false),
+          MultiChoiceOption(
+            elementZ: 5,
+            label: 'Boron  ·  B  ·  5',
+            isCorrect: false,
+          ),
+          MultiChoiceOption(
+            elementZ: 6,
+            label: 'Carbon  ·  C  ·  6',
+            isCorrect: true,
+          ),
+          MultiChoiceOption(
+            elementZ: 7,
+            label: 'Nitrogen  ·  N  ·  7',
+            isCorrect: false,
+          ),
+          MultiChoiceOption(
+            elementZ: 8,
+            label: 'Oxygen  ·  O  ·  8',
+            isCorrect: false,
+          ),
         ],
       ),
       StoryQuest(
@@ -73,8 +91,10 @@ const kStoryChapters = <StoryChapter>[
             'El alquimista cósmico combina dos de los elementos más abundantes. Uno enciende cada estrella; el otro nos da cada aliento. Su unión produce la molécula que hizo posible la vida compleja en la Tierra.',
         sceneEmoji: '💧',
         type: QuestType.combine,
-        challenge: 'Combine the lightest element with the breath of fire to create the source of all earthly life.',
-        challengeEs: 'Combina el elemento más ligero con el aliento de fuego para crear la fuente de toda vida terrestre.',
+        challenge:
+            'Combine the lightest element with the breath of fire to create the source of all earthly life.',
+        challengeEs:
+            'Combina el elemento más ligero con el aliento de fuego para crear la fuente de toda vida terrestre.',
         combineZA: 1,
         combineZB: 8,
         compoundName: 'Water (H₂O)',
@@ -137,10 +157,26 @@ const kStoryChapters = <StoryChapter>[
         challenge: 'Which element gives bones and teeth their strength?',
         challengeEs: '¿Qué elemento da fortaleza a los huesos y dientes?',
         options: [
-          MultiChoiceOption(elementZ: 12, label: 'Magnesium  ·  Mg  ·  12', isCorrect: false),
-          MultiChoiceOption(elementZ: 19, label: 'Potassium  ·  K  ·  19', isCorrect: false),
-          MultiChoiceOption(elementZ: 20, label: 'Calcium  ·  Ca  ·  20', isCorrect: true),
-          MultiChoiceOption(elementZ: 26, label: 'Iron  ·  Fe  ·  26', isCorrect: false),
+          MultiChoiceOption(
+            elementZ: 12,
+            label: 'Magnesium  ·  Mg  ·  12',
+            isCorrect: false,
+          ),
+          MultiChoiceOption(
+            elementZ: 19,
+            label: 'Potassium  ·  K  ·  19',
+            isCorrect: false,
+          ),
+          MultiChoiceOption(
+            elementZ: 20,
+            label: 'Calcium  ·  Ca  ·  20',
+            isCorrect: true,
+          ),
+          MultiChoiceOption(
+            elementZ: 26,
+            label: 'Iron  ·  Fe  ·  26',
+            isCorrect: false,
+          ),
         ],
       ),
       StoryQuest(
@@ -153,8 +189,10 @@ const kStoryChapters = <StoryChapter>[
             'Cada ola del océano lo lleva. Los soldados romanos eran pagados con él, dándonos la palabra "salario". Durante siglos, conservó alimentos y cruzó rutas comerciales. Este compuesto es más antiguo que la civilización.',
         sceneEmoji: '🧂',
         type: QuestType.combine,
-        challenge: 'Combine the reactive alkali metal with the green halogen to crystallize the taste of the sea.',
-        challengeEs: 'Combina el metal alcalino reactivo con el halógeno verde para cristalizar el sabor del mar.',
+        challenge:
+            'Combine the reactive alkali metal with the green halogen to crystallize the taste of the sea.',
+        challengeEs:
+            'Combina el metal alcalino reactivo con el halógeno verde para cristalizar el sabor del mar.',
         combineZA: 11,
         combineZB: 17,
         compoundName: 'Table Salt (NaCl)',
@@ -185,7 +223,8 @@ const kStoryChapters = <StoryChapter>[
         sceneEmoji: '💻',
         type: QuestType.identify,
         challenge: 'Find the element that powers every computer chip.',
-        challengeEs: 'Encuentra el elemento que alimenta cada chip de computadora.',
+        challengeEs:
+            'Encuentra el elemento que alimenta cada chip de computadora.',
         targetZ: 14,
         distractorZs: [5, 6, 13, 15, 32, 33, 50, 51],
       ),
@@ -199,8 +238,10 @@ const kStoryChapters = <StoryChapter>[
             'El metal más ligero de la tabla periódica inició la revolución de la energía portátil. Alimenta el teléfono en tu bolsillo, el auto eléctrico, e incluso se receta como medicamento para la salud mental.',
         sceneEmoji: '🔋',
         type: QuestType.identify,
-        challenge: 'Identify the lightest metal — the one in every rechargeable battery.',
-        challengeEs: 'Identifica el metal más ligero, el que está en cada batería recargable.',
+        challenge:
+            'Identify the lightest metal — the one in every rechargeable battery.',
+        challengeEs:
+            'Identifica el metal más ligero, el que está en cada batería recargable.',
         targetZ: 3,
         distractorZs: [1, 4, 11, 12, 19, 20, 37, 55],
       ),
@@ -215,12 +256,29 @@ const kStoryChapters = <StoryChapter>[
         sceneEmoji: '🌃',
         type: QuestType.multiChoice,
         challenge: 'Which noble gas makes classic neon signs glow red?',
-        challengeEs: '¿Qué gas noble hace brillar en rojo los letreros de neón clásicos?',
+        challengeEs:
+            '¿Qué gas noble hace brillar en rojo los letreros de neón clásicos?',
         options: [
-          MultiChoiceOption(elementZ: 2, label: 'Helium  ·  He  ·  2', isCorrect: false),
-          MultiChoiceOption(elementZ: 10, label: 'Neon  ·  Ne  ·  10', isCorrect: true),
-          MultiChoiceOption(elementZ: 18, label: 'Argon  ·  Ar  ·  18', isCorrect: false),
-          MultiChoiceOption(elementZ: 36, label: 'Krypton  ·  Kr  ·  36', isCorrect: false),
+          MultiChoiceOption(
+            elementZ: 2,
+            label: 'Helium  ·  He  ·  2',
+            isCorrect: false,
+          ),
+          MultiChoiceOption(
+            elementZ: 10,
+            label: 'Neon  ·  Ne  ·  10',
+            isCorrect: true,
+          ),
+          MultiChoiceOption(
+            elementZ: 18,
+            label: 'Argon  ·  Ar  ·  18',
+            isCorrect: false,
+          ),
+          MultiChoiceOption(
+            elementZ: 36,
+            label: 'Krypton  ·  Kr  ·  36',
+            isCorrect: false,
+          ),
         ],
       ),
       StoryQuest(
@@ -233,8 +291,10 @@ const kStoryChapters = <StoryChapter>[
             'Las plantas lo inhalan; los animales lo exhalan. Este gas incoloro se forma cuando el carbono se une al oxígeno. Ahora envuelve la Tierra como una manta térmica invisible, calentando el clima.',
         sceneEmoji: '🌍',
         type: QuestType.combine,
-        challenge: 'Combine the element of life with the element of fire to make the greenhouse gas.',
-        challengeEs: 'Combina el elemento de la vida con el elemento del fuego para crear el gas de efecto invernadero.',
+        challenge:
+            'Combine the element of life with the element of fire to make the greenhouse gas.',
+        challengeEs:
+            'Combina el elemento de la vida con el elemento del fuego para crear el gas de efecto invernadero.',
         combineZA: 6,
         combineZB: 8,
         compoundName: 'Carbon Dioxide (CO₂)',

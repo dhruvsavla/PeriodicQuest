@@ -16,14 +16,28 @@ import '../models/story_quest.dart';
 
 class _Particle {
   final double x, y, r, phase, speed, maxAlpha;
-  const _Particle(this.x, this.y, this.r, this.phase, this.speed, this.maxAlpha);
+  const _Particle(
+    this.x,
+    this.y,
+    this.r,
+    this.phase,
+    this.speed,
+    this.maxAlpha,
+  );
 }
 
 class _ConfettiPiece {
   final double x, startY, w, h, phase, rotSpeed;
   final Color color;
   const _ConfettiPiece(
-      this.x, this.startY, this.w, this.h, this.phase, this.rotSpeed, this.color);
+    this.x,
+    this.startY,
+    this.w,
+    this.h,
+    this.phase,
+    this.rotSpeed,
+    this.color,
+  );
 }
 
 // ─── Particle painter ─────────────────────────────────────────────────────────
@@ -33,16 +47,23 @@ class _ParticlePainter extends CustomPainter {
   final Color color;
   final List<_Particle> particles;
 
-  _ParticlePainter({required this.progress, required this.color, required this.particles});
+  _ParticlePainter({
+    required this.progress,
+    required this.color,
+    required this.particles,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
     for (final p in particles) {
       final y = ((p.y - progress * p.speed) % 1.0 + 1.0) % 1.0;
-      final xPx = p.x * size.width + math.sin((progress + p.phase) * math.pi * 2) * 10;
-      final alpha = ((math.sin((progress + p.phase) * math.pi * 2) * 0.5 + 0.5) * p.maxAlpha)
-          .clamp(0.0, 1.0);
+      final xPx =
+          p.x * size.width + math.sin((progress + p.phase) * math.pi * 2) * 10;
+      final alpha =
+          ((math.sin((progress + p.phase) * math.pi * 2) * 0.5 + 0.5) *
+                  p.maxAlpha)
+              .clamp(0.0, 1.0);
       paint.color = color.withValues(alpha: alpha);
       canvas.drawCircle(Offset(xPx, y * size.height), p.r, paint);
     }
@@ -64,10 +85,13 @@ class _ConfettiPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
     for (final p in pieces) {
-      final x = p.x * size.width + math.sin((progress * 3 + p.phase) * math.pi) * 28;
+      final x =
+          p.x * size.width + math.sin((progress * 3 + p.phase) * math.pi) * 28;
       final y = (p.startY + progress * 0.9) * size.height;
       if (y > size.height + 20) continue;
-      paint.color = p.color.withValues(alpha: (1.0 - progress * 0.55).clamp(0.0, 1.0));
+      paint.color = p.color.withValues(
+        alpha: (1.0 - progress * 0.55).clamp(0.0, 1.0),
+      );
       canvas.save();
       canvas.translate(x, y);
       canvas.rotate(progress * math.pi * 4 * p.rotSpeed);
@@ -148,8 +172,12 @@ class _QuestGameScreenState extends State<QuestGameScreen>
   late List<ChemicalElement> _shuffledTiles;
 
   static const _confettiColors = [
-    Color(0xFFFF6B6B), Color(0xFFFFD93D), Color(0xFF6BCB77),
-    Color(0xFF4D96FF), Color(0xFFFF922B), Color(0xFFCC5DE8),
+    Color(0xFFFF6B6B),
+    Color(0xFFFFD93D),
+    Color(0xFF6BCB77),
+    Color(0xFF4D96FF),
+    Color(0xFFFF922B),
+    Color(0xFFCC5DE8),
   ];
 
   @override
@@ -157,28 +185,61 @@ class _QuestGameScreenState extends State<QuestGameScreen>
     super.initState();
     _questIndex = widget.initialQuestIndex;
 
-    _shakeCtrl  = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
-    _resultCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
-    _starsCtrl  = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
-    _bgCtrl     = AnimationController(vsync: this, duration: const Duration(seconds: 6))..repeat();
-    _sceneCtrl  = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat();
-    _particleCtrl = AnimationController(vsync: this, duration: const Duration(seconds: 10))..repeat();
-    _confettiCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1600));
+    _shakeCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _resultCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _starsCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _bgCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 6),
+    )..repeat();
+    _sceneCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat();
+    _particleCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 10),
+    )..repeat();
+    _confettiCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    );
 
     final pRng = math.Random(12345);
-    _particles = List.generate(22, (_) => _Particle(
-      pRng.nextDouble(), pRng.nextDouble(),
-      pRng.nextDouble() * 2.2 + 0.8, pRng.nextDouble(),
-      pRng.nextDouble() * 0.12 + 0.04, pRng.nextDouble() * 0.09 + 0.02,
-    ));
+    _particles = List.generate(
+      22,
+      (_) => _Particle(
+        pRng.nextDouble(),
+        pRng.nextDouble(),
+        pRng.nextDouble() * 2.2 + 0.8,
+        pRng.nextDouble(),
+        pRng.nextDouble() * 0.12 + 0.04,
+        pRng.nextDouble() * 0.09 + 0.02,
+      ),
+    );
 
     final cRng = math.Random(99887);
-    _confetti = List.generate(48, (_) => _ConfettiPiece(
-      cRng.nextDouble(), cRng.nextDouble() * 0.4 - 0.45,
-      cRng.nextDouble() * 8 + 4, cRng.nextDouble() * 5 + 3,
-      cRng.nextDouble(), cRng.nextDouble() * 2 + 0.5,
-      _confettiColors[cRng.nextInt(_confettiColors.length)],
-    ));
+    _confetti = List.generate(
+      48,
+      (_) => _ConfettiPiece(
+        cRng.nextDouble(),
+        cRng.nextDouble() * 0.4 - 0.45,
+        cRng.nextDouble() * 8 + 4,
+        cRng.nextDouble() * 5 + 3,
+        cRng.nextDouble(),
+        cRng.nextDouble() * 2 + 0.5,
+        _confettiColors[cRng.nextInt(_confettiColors.length)],
+      ),
+    );
 
     _initQuest();
   }
@@ -241,7 +302,10 @@ class _QuestGameScreenState extends State<QuestGameScreen>
       zList = [];
     }
     final allElements = {for (final e in kPeriodicElements) e.z: e};
-    final elems = zList.map((z) => allElements[z]).whereType<ChemicalElement>().toList();
+    final elems = zList
+        .map((z) => allElements[z])
+        .whereType<ChemicalElement>()
+        .toList();
     elems.shuffle(math.Random(widget.chapter.id * 100 + _questIndex));
     _shuffledTiles = elems;
   }
@@ -249,7 +313,10 @@ class _QuestGameScreenState extends State<QuestGameScreen>
   void _startTypewriter() {
     final text = _showSpanish ? (_quest.storyEs ?? _quest.story) : _quest.story;
     _typeTimer = Timer.periodic(const Duration(milliseconds: 16), (t) {
-      if (!mounted) { t.cancel(); return; }
+      if (!mounted) {
+        t.cancel();
+        return;
+      }
       if (_revealedChars >= text.length) {
         t.cancel();
         if (mounted) setState(() => _textDone = true);
@@ -262,7 +329,10 @@ class _QuestGameScreenState extends State<QuestGameScreen>
   void _skipTypewriter() {
     _typeTimer?.cancel();
     final text = _showSpanish ? (_quest.storyEs ?? _quest.story) : _quest.story;
-    setState(() { _revealedChars = text.length; _textDone = true; });
+    setState(() {
+      _revealedChars = text.length;
+      _textDone = true;
+    });
   }
 
   void _toggleLanguage() {
@@ -283,10 +353,16 @@ class _QuestGameScreenState extends State<QuestGameScreen>
     if (_answered != null) return;
     if (_wrongTaps.contains(z)) return;
     if (z == _quest.targetZ) {
-      setState(() { _correctTapZ = z; _answered = true; });
+      setState(() {
+        _correctTapZ = z;
+        _answered = true;
+      });
       _onCorrect();
     } else {
-      setState(() { _wrongTaps.add(z); _attempts++; });
+      setState(() {
+        _wrongTaps.add(z);
+        _attempts++;
+      });
       _shakeCtrl.forward(from: 0);
     }
   }
@@ -305,16 +381,24 @@ class _QuestGameScreenState extends State<QuestGameScreen>
   void _checkCombine() {
     final za = _quest.combineZA!;
     final zb = _quest.combineZB!;
-    final correct = (_slotA == za && _slotB == zb) || (_slotA == zb && _slotB == za);
+    final correct =
+        (_slotA == za && _slotB == zb) || (_slotA == zb && _slotB == za);
     if (correct) {
       setState(() => _answered = true);
       _onCorrect();
     } else {
-      setState(() { _combineWrong = true; _attempts++; });
+      setState(() {
+        _combineWrong = true;
+        _attempts++;
+      });
       _shakeCtrl.forward(from: 0);
       Future.delayed(const Duration(milliseconds: 700), () {
         if (mounted) {
-          setState(() { _slotA = null; _slotB = null; _combineWrong = false; });
+          setState(() {
+            _slotA = null;
+            _slotB = null;
+            _combineWrong = false;
+          });
         }
       });
     }
@@ -328,11 +412,17 @@ class _QuestGameScreenState extends State<QuestGameScreen>
       setState(() => _answered = true);
       _onCorrect();
     } else {
-      setState(() { _mcWrong = true; _attempts++; });
+      setState(() {
+        _mcWrong = true;
+        _attempts++;
+      });
       _shakeCtrl.forward(from: 0);
       Future.delayed(const Duration(milliseconds: 600), () {
         if (mounted) {
-          setState(() { _selectedOptionIdx = null; _mcWrong = false; });
+          setState(() {
+            _selectedOptionIdx = null;
+            _mcWrong = false;
+          });
         }
       });
     }
@@ -341,7 +431,11 @@ class _QuestGameScreenState extends State<QuestGameScreen>
   void _onCorrect() {
     final stars = _attempts == 0 ? 3 : (_attempts == 1 ? 2 : 1);
     _awardedStars = stars;
-    StoryProgressRepository.instance.record(widget.chapter.id, _questIndex, stars);
+    StoryProgressRepository.instance.record(
+      widget.chapter.id,
+      _questIndex,
+      stars,
+    );
     Future.delayed(const Duration(milliseconds: 350), () {
       if (!mounted) return;
       setState(() => _showResult = true);
@@ -354,7 +448,10 @@ class _QuestGameScreenState extends State<QuestGameScreen>
   void _nextQuestOrFinish() {
     final nextIndex = _questIndex + 1;
     if (nextIndex < widget.chapter.quests.length) {
-      setState(() { _questIndex = nextIndex; _initQuest(); });
+      setState(() {
+        _questIndex = nextIndex;
+        _initQuest();
+      });
     } else {
       setState(() => _chapterDone = true);
     }
@@ -467,7 +564,12 @@ class _QuestGameScreenState extends State<QuestGameScreen>
 
         Expanded(
           child: Padding(
-            padding: EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, h * 0.018),
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              0,
+              AppSpacing.md,
+              h * 0.018,
+            ),
             child: _buildChallengePanel(w, h),
           ),
         ),
@@ -480,12 +582,14 @@ class _QuestGameScreenState extends State<QuestGameScreen>
       animation: _shakeCtrl,
       builder: (context, child) {
         final shakeX =
-            math.sin(_shakeCtrl.value * math.pi * 5) * 10.0 * (1 - _shakeCtrl.value);
+            math.sin(_shakeCtrl.value * math.pi * 5) *
+            10.0 *
+            (1 - _shakeCtrl.value);
         return Transform.translate(offset: Offset(shakeX, 0), child: child);
       },
       child: switch (_quest.type) {
-        QuestType.identify   => _buildIdentifyPanel(w),
-        QuestType.combine    => _buildCombinePanel(w),
+        QuestType.identify => _buildIdentifyPanel(w),
+        QuestType.combine => _buildCombinePanel(w),
         QuestType.multiChoice => _buildMultiChoicePanel(w, h),
       },
     );
@@ -513,14 +617,16 @@ class _QuestGameScreenState extends State<QuestGameScreen>
               runSpacing: 10.h,
               alignment: WrapAlignment.center,
               children: _shuffledTiles.map((elem) {
-                final isWrong   = _wrongTaps.contains(elem.z);
+                final isWrong = _wrongTaps.contains(elem.z);
                 final isCorrect = _correctTapZ == elem.z;
                 return _ElementTile(
                   elem: elem,
                   size: tileSize,
                   state: isCorrect
                       ? _TileState.correct
-                      : isWrong ? _TileState.wrong : _TileState.idle,
+                      : isWrong
+                      ? _TileState.wrong
+                      : _TileState.idle,
                   onTap: () => _handleIdentifyTap(elem.z),
                 );
               }).toList(),
@@ -554,8 +660,12 @@ class _QuestGameScreenState extends State<QuestGameScreen>
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _CombineSlot(elem: elemA, label: 'A',
-                accentColor: widget.chapter.accentColor, isWrong: _combineWrong),
+            _CombineSlot(
+              elem: elemA,
+              label: 'A',
+              accentColor: widget.chapter.accentColor,
+              isWrong: _combineWrong,
+            ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 14.w),
               child: AnimatedContainer(
@@ -588,8 +698,12 @@ class _QuestGameScreenState extends State<QuestGameScreen>
                 ),
               ),
             ),
-            _CombineSlot(elem: elemB, label: 'B',
-                accentColor: widget.chapter.accentColor, isWrong: _combineWrong),
+            _CombineSlot(
+              elem: elemB,
+              label: 'B',
+              accentColor: widget.chapter.accentColor,
+              isWrong: _combineWrong,
+            ),
           ],
         ),
         SizedBox(height: 14.h),
@@ -602,7 +716,8 @@ class _QuestGameScreenState extends State<QuestGameScreen>
               children: _shuffledTiles.map((elem) {
                 final inSlot = elem.z == _slotA || elem.z == _slotB;
                 return _ElementTile(
-                  elem: elem, size: tileSize,
+                  elem: elem,
+                  size: tileSize,
                   state: inSlot ? _TileState.selected : _TileState.idle,
                   onTap: () => _handleCombineTap(elem.z),
                 );
@@ -618,7 +733,9 @@ class _QuestGameScreenState extends State<QuestGameScreen>
 
   Widget _buildMultiChoicePanel(double w, double h) {
     final allElements = {for (final e in kPeriodicElements) e.z: e};
-    final cardSize = math.min((w - 44.w) / 2, (h * 0.55) / 2).clamp(90.0, 160.0);
+    final cardSize = math
+        .min((w - 44.w) / 2, (h * 0.55) / 2)
+        .clamp(90.0, 160.0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -639,15 +756,19 @@ class _QuestGameScreenState extends State<QuestGameScreen>
             crossAxisSpacing: 12.w,
             childAspectRatio: 1.0,
             children: List.generate(_quest.options!.length, (i) {
-              final opt      = _quest.options![i];
-              final elem     = allElements[opt.elementZ];
+              final opt = _quest.options![i];
+              final elem = allElements[opt.elementZ];
               final selected = _selectedOptionIdx == i;
-              final isWrong  = selected && _mcWrong;
+              final isWrong = selected && _mcWrong;
               return _McElementCard(
                 elem: elem,
                 label: opt.label,
                 cardSize: cardSize,
-                state: isWrong ? _McState.wrong : selected ? _McState.selected : _McState.idle,
+                state: isWrong
+                    ? _McState.wrong
+                    : selected
+                    ? _McState.selected
+                    : _McState.idle,
                 accentColor: widget.chapter.accentColor,
                 onTap: () => _handleMultiChoice(i),
               );
@@ -680,17 +801,23 @@ class _SceneCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final floatY   = math.sin(sceneFloat * math.pi * 2) * 5.0;
+    final floatY = math.sin(sceneFloat * math.pi * 2) * 5.0;
     final fullText = showSpanish ? (quest.storyEs ?? quest.story) : quest.story;
-    final title    = showSpanish ? (quest.titleEs ?? quest.title) : quest.title;
-    final displayText = fullText.substring(0, revealedChars.clamp(0, fullText.length));
+    final title = showSpanish ? (quest.titleEs ?? quest.title) : quest.title;
+    final displayText = fullText.substring(
+      0,
+      revealedChars.clamp(0, fullText.length),
+    );
 
     return Container(
       padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.28),
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: accentColor.withValues(alpha: 0.30), width: 1.2),
+        border: Border.all(
+          color: accentColor.withValues(alpha: 0.30),
+          width: 1.2,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -712,7 +839,10 @@ class _SceneCard extends StatelessWidget {
                 ],
               ),
               child: Center(
-                child: Text(quest.sceneEmoji, style: TextStyle(fontSize: 28.sp)),
+                child: Text(
+                  quest.sceneEmoji,
+                  style: TextStyle(fontSize: 28.sp),
+                ),
               ),
             ),
           ),
@@ -760,7 +890,13 @@ class _SceneCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (!textDone)
-                  Text('▌', style: TextStyle(fontSize: 11.sp, color: accentColor.withValues(alpha: 0.8))),
+                  Text(
+                    '▌',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      color: accentColor.withValues(alpha: 0.8),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -858,7 +994,9 @@ class _QuestHeader extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(AppRadius.md),
-              border: Border.all(color: chapter.accentColor.withValues(alpha: 0.45)),
+              border: Border.all(
+                color: chapter.accentColor.withValues(alpha: 0.45),
+              ),
             ),
             child: Text(
               showSpanish ? 'ES' : 'EN',
@@ -902,7 +1040,11 @@ class _ChallengeLabel extends StatelessWidget {
   final Color accentColor;
   final String icon;
 
-  const _ChallengeLabel({required this.text, required this.accentColor, required this.icon});
+  const _ChallengeLabel({
+    required this.text,
+    required this.accentColor,
+    required this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -944,60 +1086,104 @@ class _ElementTile extends StatefulWidget {
   final _TileState state;
   final VoidCallback onTap;
 
-  const _ElementTile({required this.elem, required this.size, required this.state, required this.onTap});
+  const _ElementTile({
+    required this.elem,
+    required this.size,
+    required this.state,
+    required this.onTap,
+  });
 
   @override
   State<_ElementTile> createState() => _ElementTileState();
 }
 
-class _ElementTileState extends State<_ElementTile> with SingleTickerProviderStateMixin {
+class _ElementTileState extends State<_ElementTile>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
 
   @override
   void initState() {
     super.initState();
     _ctrl = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 100),
-      lowerBound: 0.88, upperBound: 1.0, value: 1.0,
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+      lowerBound: 0.88,
+      upperBound: 1.0,
+      value: 1.0,
     );
   }
 
   @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final elem  = widget.elem;
+    final elem = widget.elem;
     final color = periodicCategoryColor(elem.cat);
-    final sz    = widget.size;
+    final sz = widget.size;
     final state = widget.state;
 
-    Color bg, border; Color textColor; List<BoxShadow>? shadows;
+    Color bg, border;
+    Color textColor;
+    List<BoxShadow>? shadows;
     switch (state) {
       case _TileState.idle:
-        bg = color; border = color.withValues(alpha: 0.6); textColor = Colors.white;
-        shadows = [BoxShadow(color: color.withValues(alpha: 0.40), blurRadius: 8.r, offset: Offset(0, 3.h))];
+        bg = color;
+        border = color.withValues(alpha: 0.6);
+        textColor = Colors.white;
+        shadows = [
+          BoxShadow(
+            color: color.withValues(alpha: 0.40),
+            blurRadius: 8.r,
+            offset: Offset(0, 3.h),
+          ),
+        ];
       case _TileState.wrong:
-        bg = const Color(0xFF7F1D1D); border = const Color(0xFFEF4444); textColor = Colors.white;
+        bg = const Color(0xFF7F1D1D);
+        border = const Color(0xFFEF4444);
+        textColor = Colors.white;
         shadows = [BoxShadow(color: const Color(0x66EF4444), blurRadius: 12.r)];
       case _TileState.correct:
-        bg = const Color(0xFF14532D); border = const Color(0xFF22C55E); textColor = Colors.white;
-        shadows = [BoxShadow(color: const Color(0x8822C55E), blurRadius: 18.r, spreadRadius: 2.r)];
+        bg = const Color(0xFF14532D);
+        border = const Color(0xFF22C55E);
+        textColor = Colors.white;
+        shadows = [
+          BoxShadow(
+            color: const Color(0x8822C55E),
+            blurRadius: 18.r,
+            spreadRadius: 2.r,
+          ),
+        ];
       case _TileState.selected:
-        bg = color.withValues(alpha: 0.55); border = Colors.white.withValues(alpha: 0.7); textColor = Colors.white;
-        shadows = [BoxShadow(color: Colors.white.withValues(alpha: 0.25), blurRadius: 8.r)];
+        bg = color.withValues(alpha: 0.55);
+        border = Colors.white.withValues(alpha: 0.7);
+        textColor = Colors.white;
+        shadows = [
+          BoxShadow(
+            color: Colors.white.withValues(alpha: 0.25),
+            blurRadius: 8.r,
+          ),
+        ];
     }
 
     return GestureDetector(
       onTapDown: (_) => _ctrl.reverse(),
-      onTapUp: (_) { _ctrl.forward(); widget.onTap(); },
+      onTapUp: (_) {
+        _ctrl.forward();
+        widget.onTap();
+      },
       onTapCancel: () => _ctrl.forward(),
       child: AnimatedBuilder(
         animation: _ctrl,
-        builder: (context, child) => Transform.scale(scale: _ctrl.value, child: child),
+        builder: (context, child) =>
+            Transform.scale(scale: _ctrl.value, child: child),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          width: sz, height: sz * 1.18,
+          width: sz,
+          height: sz * 1.18,
           decoration: BoxDecoration(
             color: bg,
             borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -1007,9 +1193,34 @@ class _ElementTileState extends State<_ElementTile> with SingleTickerProviderSta
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('${elem.z}', style: TextStyle(fontSize: sz * 0.13, color: textColor.withValues(alpha: 0.70), fontWeight: FontWeight.w700, height: 1.0)),
-              Text(elem.sym,    style: TextStyle(fontSize: sz * 0.38, fontWeight: FontWeight.w900, color: textColor, height: 1.0)),
-              Text(elem.name,   style: TextStyle(fontSize: sz * 0.11, color: textColor.withValues(alpha: 0.80), fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis),
+              Text(
+                '${elem.z}',
+                style: TextStyle(
+                  fontSize: sz * 0.13,
+                  color: textColor.withValues(alpha: 0.70),
+                  fontWeight: FontWeight.w700,
+                  height: 1.0,
+                ),
+              ),
+              Text(
+                elem.sym,
+                style: TextStyle(
+                  fontSize: sz * 0.38,
+                  fontWeight: FontWeight.w900,
+                  color: textColor,
+                  height: 1.0,
+                ),
+              ),
+              Text(
+                elem.name,
+                style: TextStyle(
+                  fontSize: sz * 0.11,
+                  color: textColor.withValues(alpha: 0.80),
+                  fontWeight: FontWeight.w700,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ),
         ),
@@ -1026,44 +1237,103 @@ class _CombineSlot extends StatelessWidget {
   final Color accentColor;
   final bool isWrong;
 
-  const _CombineSlot({required this.elem, required this.label, required this.accentColor, required this.isWrong});
+  const _CombineSlot({
+    required this.elem,
+    required this.label,
+    required this.accentColor,
+    required this.isWrong,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final filled    = elem != null;
-    final elemColor = filled ? periodicCategoryColor(elem!.cat) : Colors.transparent;
+    final filled = elem != null;
+    final elemColor = filled
+        ? periodicCategoryColor(elem!.cat)
+        : Colors.transparent;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      width: 88.w, height: 104.h,
+      width: 88.w,
+      height: 104.h,
       decoration: BoxDecoration(
         color: isWrong
             ? const Color(0xFF7F1D1D).withValues(alpha: 0.7)
-            : filled ? elemColor.withValues(alpha: 0.80) : Colors.white.withValues(alpha: 0.07),
+            : filled
+            ? elemColor.withValues(alpha: 0.80)
+            : Colors.white.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(
-          color: isWrong ? const Color(0xFFEF4444) : filled ? accentColor.withValues(alpha: 0.65) : Colors.white.withValues(alpha: 0.18),
+          color: isWrong
+              ? const Color(0xFFEF4444)
+              : filled
+              ? accentColor.withValues(alpha: 0.65)
+              : Colors.white.withValues(alpha: 0.18),
           width: 2,
         ),
         boxShadow: filled && !isWrong
-            ? [BoxShadow(color: accentColor.withValues(alpha: 0.30), blurRadius: 16.r, spreadRadius: 1.r)]
+            ? [
+                BoxShadow(
+                  color: accentColor.withValues(alpha: 0.30),
+                  blurRadius: 16.r,
+                  spreadRadius: 1.r,
+                ),
+              ]
             : null,
       ),
       child: filled
           ? Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('${elem!.z}', style: TextStyle(fontSize: 11.sp, color: Colors.white.withValues(alpha: 0.70), fontWeight: FontWeight.w700, height: 1.0)),
-                Text(elem!.sym,   style: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.w900, color: Colors.white, height: 1.0)),
-                Text(elem!.name,  style: TextStyle(fontSize: 10.sp, color: Colors.white.withValues(alpha: 0.75), fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text(
+                  '${elem!.z}',
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    color: Colors.white.withValues(alpha: 0.70),
+                    fontWeight: FontWeight.w700,
+                    height: 1.0,
+                  ),
+                ),
+                Text(
+                  elem!.sym,
+                  style: TextStyle(
+                    fontSize: 28.sp,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    height: 1.0,
+                  ),
+                ),
+                Text(
+                  elem!.name,
+                  style: TextStyle(
+                    fontSize: 10.sp,
+                    color: Colors.white.withValues(alpha: 0.75),
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             )
           : Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('?', style: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.w900, color: Colors.white.withValues(alpha: 0.15))),
+                Text(
+                  '?',
+                  style: TextStyle(
+                    fontSize: 28.sp,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white.withValues(alpha: 0.15),
+                  ),
+                ),
                 SizedBox(height: 4.h),
-                Text('Slot $label', style: TextStyle(fontSize: 10.sp, color: Colors.white.withValues(alpha: 0.25), fontWeight: FontWeight.w600)),
+                Text(
+                  'Slot $label',
+                  style: TextStyle(
+                    fontSize: 10.sp,
+                    color: Colors.white.withValues(alpha: 0.25),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
     );
@@ -1083,53 +1353,91 @@ class _McElementCard extends StatefulWidget {
   final VoidCallback onTap;
 
   const _McElementCard({
-    required this.elem, required this.label, required this.cardSize,
-    required this.state, required this.accentColor, required this.onTap,
+    required this.elem,
+    required this.label,
+    required this.cardSize,
+    required this.state,
+    required this.accentColor,
+    required this.onTap,
   });
 
   @override
   State<_McElementCard> createState() => _McElementCardState();
 }
 
-class _McElementCardState extends State<_McElementCard> with SingleTickerProviderStateMixin {
+class _McElementCardState extends State<_McElementCard>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 90), lowerBound: 0.93, upperBound: 1.0, value: 1.0);
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 90),
+      lowerBound: 0.93,
+      upperBound: 1.0,
+      value: 1.0,
+    );
   }
 
   @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final elem      = widget.elem;
-    final state     = widget.state;
-    final elemColor = elem != null ? periodicCategoryColor(elem.cat) : const Color(0xFF374151);
-    final sz        = widget.cardSize;
+    final elem = widget.elem;
+    final state = widget.state;
+    final elemColor = elem != null
+        ? periodicCategoryColor(elem.cat)
+        : const Color(0xFF374151);
+    final sz = widget.cardSize;
 
-    Color bg, border; List<BoxShadow>? shadows;
+    Color bg, border;
+    List<BoxShadow>? shadows;
     switch (state) {
       case _McState.idle:
-        bg = elemColor.withValues(alpha: 0.85); border = elemColor;
-        shadows = [BoxShadow(color: elemColor.withValues(alpha: 0.35), blurRadius: 10.r, offset: Offset(0, 4.h))];
+        bg = elemColor.withValues(alpha: 0.85);
+        border = elemColor;
+        shadows = [
+          BoxShadow(
+            color: elemColor.withValues(alpha: 0.35),
+            blurRadius: 10.r,
+            offset: Offset(0, 4.h),
+          ),
+        ];
       case _McState.selected:
-        bg = const Color(0xFF14532D); border = const Color(0xFF22C55E);
-        shadows = [BoxShadow(color: const Color(0x8822C55E), blurRadius: 20.r, spreadRadius: 2.r)];
+        bg = const Color(0xFF14532D);
+        border = const Color(0xFF22C55E);
+        shadows = [
+          BoxShadow(
+            color: const Color(0x8822C55E),
+            blurRadius: 20.r,
+            spreadRadius: 2.r,
+          ),
+        ];
       case _McState.wrong:
-        bg = const Color(0xFF7F1D1D); border = const Color(0xFFEF4444);
+        bg = const Color(0xFF7F1D1D);
+        border = const Color(0xFFEF4444);
         shadows = [BoxShadow(color: const Color(0x66EF4444), blurRadius: 14.r)];
     }
 
     return GestureDetector(
       onTapDown: state == _McState.idle ? (_) => _ctrl.reverse() : null,
-      onTapUp:   state == _McState.idle ? (_) { _ctrl.forward(); widget.onTap(); } : null,
+      onTapUp: state == _McState.idle
+          ? (_) {
+              _ctrl.forward();
+              widget.onTap();
+            }
+          : null,
       onTapCancel: () => _ctrl.forward(),
       child: AnimatedBuilder(
         animation: _ctrl,
-        builder: (context, child) => Transform.scale(scale: _ctrl.value, child: child),
+        builder: (context, child) =>
+            Transform.scale(scale: _ctrl.value, child: child),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
@@ -1142,15 +1450,50 @@ class _McElementCardState extends State<_McElementCard> with SingleTickerProvide
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('${elem.z}', style: TextStyle(fontSize: sz * 0.10, color: Colors.white.withValues(alpha: 0.65), fontWeight: FontWeight.w700, height: 1.0)),
-                    Text(elem.sym,   style: TextStyle(fontSize: sz * 0.38, fontWeight: FontWeight.w900, color: Colors.white, height: 1.0)),
-                    Text(elem.name,  style: TextStyle(fontSize: sz * 0.11, color: Colors.white.withValues(alpha: 0.85), fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text(
+                      '${elem.z}',
+                      style: TextStyle(
+                        fontSize: sz * 0.10,
+                        color: Colors.white.withValues(alpha: 0.65),
+                        fontWeight: FontWeight.w700,
+                        height: 1.0,
+                      ),
+                    ),
+                    Text(
+                      elem.sym,
+                      style: TextStyle(
+                        fontSize: sz * 0.38,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        height: 1.0,
+                      ),
+                    ),
+                    Text(
+                      elem.name,
+                      style: TextStyle(
+                        fontSize: sz * 0.11,
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontWeight: FontWeight.w700,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 )
-              : Center(child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-                  child: Text(widget.label, textAlign: TextAlign.center, style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: Colors.white)),
-                )),
+              : Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                    child: Text(
+                      widget.label,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
         ),
       ),
     );
@@ -1171,9 +1514,15 @@ class _QuestResultOverlay extends StatelessWidget {
   final VoidCallback onNext;
 
   const _QuestResultOverlay({
-    required this.quest, required this.stars, required this.accentColor,
-    required this.resultCtrl, required this.starsCtrl, required this.confettiCtrl,
-    required this.confetti, required this.isLastQuest, required this.onNext,
+    required this.quest,
+    required this.stars,
+    required this.accentColor,
+    required this.resultCtrl,
+    required this.starsCtrl,
+    required this.confettiCtrl,
+    required this.confetti,
+    required this.isLastQuest,
+    required this.onNext,
   });
 
   @override
@@ -1187,7 +1536,10 @@ class _QuestResultOverlay extends StatelessWidget {
             child: AnimatedBuilder(
               animation: confettiCtrl,
               builder: (context, _) => CustomPaint(
-                painter: _ConfettiPainter(progress: confettiCtrl.value, pieces: confetti),
+                painter: _ConfettiPainter(
+                  progress: confettiCtrl.value,
+                  pieces: confetti,
+                ),
               ),
             ),
           ),
@@ -1202,8 +1554,17 @@ class _QuestResultOverlay extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: const Color(0xFF0F172A),
                   borderRadius: BorderRadius.circular(AppRadius.xl),
-                  border: Border.all(color: accentColor.withValues(alpha: 0.55), width: 2),
-                  boxShadow: [BoxShadow(color: accentColor.withValues(alpha: 0.28), blurRadius: 40.r, spreadRadius: 4.r)],
+                  border: Border.all(
+                    color: accentColor.withValues(alpha: 0.55),
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: accentColor.withValues(alpha: 0.28),
+                      blurRadius: 40.r,
+                      spreadRadius: 4.r,
+                    ),
+                  ],
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -1213,47 +1574,103 @@ class _QuestResultOverlay extends StatelessWidget {
                       alignment: Alignment.center,
                       children: [
                         Container(
-                          width: 76.w, height: 76.w,
+                          width: 76.w,
+                          height: 76.w,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: accentColor.withValues(alpha: 0.12),
-                            boxShadow: [BoxShadow(color: accentColor.withValues(alpha: 0.30), blurRadius: 24.r, spreadRadius: 2.r)],
+                            boxShadow: [
+                              BoxShadow(
+                                color: accentColor.withValues(alpha: 0.30),
+                                blurRadius: 24.r,
+                                spreadRadius: 2.r,
+                              ),
+                            ],
                           ),
-                          child: Center(child: Text(quest.sceneEmoji, style: TextStyle(fontSize: 34.sp))),
+                          child: Center(
+                            child: Text(
+                              quest.sceneEmoji,
+                              style: TextStyle(fontSize: 34.sp),
+                            ),
+                          ),
                         ),
                         Positioned(
-                          bottom: -4, right: -4,
+                          bottom: -4,
+                          right: -4,
                           child: Container(
-                            width: 28.w, height: 28.w,
+                            width: 28.w,
+                            height: 28.w,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: const Color(0xFF14532D),
-                              border: Border.all(color: const Color(0xFF22C55E), width: 2),
+                              border: Border.all(
+                                color: const Color(0xFF22C55E),
+                                width: 2,
+                              ),
                             ),
-                            child: Icon(Icons.check_rounded, color: const Color(0xFF22C55E), size: 14.sp),
+                            child: Icon(
+                              Icons.check_rounded,
+                              color: const Color(0xFF22C55E),
+                              size: 14.sp,
+                            ),
                           ),
                         ),
                       ],
                     ),
                     SizedBox(height: 14.h),
-                    Text('CORRECT! 🎉', style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1.2)),
+                    Text(
+                      'CORRECT! 🎉',
+                      style: TextStyle(
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
                     SizedBox(height: 16.h),
-                    _StarRow(stars: stars, accentColor: accentColor, ctrl: starsCtrl),
+                    _StarRow(
+                      stars: stars,
+                      accentColor: accentColor,
+                      ctrl: starsCtrl,
+                    ),
                     SizedBox(height: 18.h),
-                    Text('"${quest.title}"', style: TextStyle(fontSize: 13.sp, color: accentColor, fontWeight: FontWeight.w700, fontStyle: FontStyle.italic), textAlign: TextAlign.center),
+                    Text(
+                      '"${quest.title}"',
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: accentColor,
+                        fontWeight: FontWeight.w700,
+                        fontStyle: FontStyle.italic,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                     SizedBox(height: 22.h),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: onNext,
-                        icon: Icon(isLastQuest ? Icons.emoji_events_rounded : Icons.arrow_forward_rounded, size: 16.sp),
-                        label: Text(isLastQuest ? 'Chapter Complete!' : 'Next Quest',
-                            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14.sp)),
+                        icon: Icon(
+                          isLastQuest
+                              ? Icons.emoji_events_rounded
+                              : Icons.arrow_forward_rounded,
+                          size: 16.sp,
+                        ),
+                        label: Text(
+                          isLastQuest ? 'Chapter Complete!' : 'Next Quest',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 14.sp,
+                          ),
+                        ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: accentColor, foregroundColor: Colors.white,
+                          backgroundColor: accentColor,
+                          foregroundColor: Colors.white,
                           padding: EdgeInsets.symmetric(vertical: 13.h),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
-                          elevation: 4, shadowColor: accentColor.withValues(alpha: 0.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.lg),
+                          ),
+                          elevation: 4,
+                          shadowColor: accentColor.withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -1275,7 +1692,11 @@ class _StarRow extends StatelessWidget {
   final Color accentColor;
   final AnimationController ctrl;
 
-  const _StarRow({required this.stars, required this.accentColor, required this.ctrl});
+  const _StarRow({
+    required this.stars,
+    required this.accentColor,
+    required this.ctrl,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1285,9 +1706,9 @@ class _StarRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(3, (i) {
           final filled = i < stars;
-          final delay  = i * 0.28;
+          final delay = i * 0.28;
           final localP = ((ctrl.value - delay) / (1.0 - delay)).clamp(0.0, 1.0);
-          final scale  = CurvedAnimation(
+          final scale = CurvedAnimation(
             parent: AlwaysStoppedAnimation(localP),
             curve: Curves.easeOutBack,
           ).value;
@@ -1297,7 +1718,10 @@ class _StarRow extends StatelessWidget {
               scale: scale,
               child: Text(
                 filled ? '⭐' : '☆',
-                style: TextStyle(fontSize: 40.sp, color: filled ? null : Colors.white.withValues(alpha: 0.20)),
+                style: TextStyle(
+                  fontSize: 40.sp,
+                  color: filled ? null : Colors.white.withValues(alpha: 0.20),
+                ),
               ),
             ),
           );
@@ -1318,12 +1742,17 @@ class _ChapterCompleteOverlay extends StatefulWidget {
   final VoidCallback onHome;
 
   const _ChapterCompleteOverlay({
-    required this.chapter, required this.resultCtrl, required this.starsCtrl,
-    required this.confetti, required this.totalStars, required this.onHome,
+    required this.chapter,
+    required this.resultCtrl,
+    required this.starsCtrl,
+    required this.confetti,
+    required this.totalStars,
+    required this.onHome,
   });
 
   @override
-  State<_ChapterCompleteOverlay> createState() => _ChapterCompleteOverlayState();
+  State<_ChapterCompleteOverlay> createState() =>
+      _ChapterCompleteOverlayState();
 }
 
 // FIX: was SingleTickerProviderStateMixin — needs two controllers so use TickerProviderStateMixin
@@ -1335,8 +1764,14 @@ class _ChapterCompleteOverlayState extends State<_ChapterCompleteOverlay>
   @override
   void initState() {
     super.initState();
-    _enterCtrl   = AnimationController(vsync: this, duration: const Duration(milliseconds: 600))..forward();
-    _confettiCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 2200))..forward();
+    _enterCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    )..forward();
+    _confettiCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2200),
+    )..forward();
   }
 
   @override
@@ -1348,7 +1783,7 @@ class _ChapterCompleteOverlayState extends State<_ChapterCompleteOverlay>
 
   @override
   Widget build(BuildContext context) {
-    final ch       = widget.chapter;
+    final ch = widget.chapter;
     final maxStars = ch.quests.length * 3;
 
     return FadeTransition(
@@ -1360,7 +1795,10 @@ class _ChapterCompleteOverlayState extends State<_ChapterCompleteOverlay>
             child: AnimatedBuilder(
               animation: _confettiCtrl,
               builder: (context, _) => CustomPaint(
-                painter: _ConfettiPainter(progress: _confettiCtrl.value, pieces: widget.confetti),
+                painter: _ConfettiPainter(
+                  progress: _confettiCtrl.value,
+                  pieces: widget.confetti,
+                ),
               ),
             ),
           ),
@@ -1375,8 +1813,17 @@ class _ChapterCompleteOverlayState extends State<_ChapterCompleteOverlay>
                 decoration: BoxDecoration(
                   color: const Color(0xFF0A0F1E),
                   borderRadius: BorderRadius.circular(AppRadius.xl),
-                  border: Border.all(color: ch.accentColor.withValues(alpha: 0.6), width: 2),
-                  boxShadow: [BoxShadow(color: ch.accentColor.withValues(alpha: 0.30), blurRadius: 50.r, spreadRadius: 6.r)],
+                  border: Border.all(
+                    color: ch.accentColor.withValues(alpha: 0.6),
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: ch.accentColor.withValues(alpha: 0.30),
+                      blurRadius: 50.r,
+                      spreadRadius: 6.r,
+                    ),
+                  ],
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -1385,37 +1832,81 @@ class _ChapterCompleteOverlayState extends State<_ChapterCompleteOverlay>
                       alignment: Alignment.center,
                       children: [
                         Container(
-                          width: 90.w, height: 90.w,
+                          width: 90.w,
+                          height: 90.w,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            gradient: RadialGradient(colors: [ch.accentColor.withValues(alpha: 0.40), Colors.transparent]),
+                            gradient: RadialGradient(
+                              colors: [
+                                ch.accentColor.withValues(alpha: 0.40),
+                                Colors.transparent,
+                              ],
+                            ),
                           ),
                         ),
                         Text(ch.emoji, style: TextStyle(fontSize: 44.sp)),
                       ],
                     ),
                     SizedBox(height: 12.h),
-                    Text('CHAPTER COMPLETE! 🏆', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w900, color: ch.accentColor, letterSpacing: 1.2), textAlign: TextAlign.center),
+                    Text(
+                      'CHAPTER COMPLETE! 🏆',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w900,
+                        color: ch.accentColor,
+                        letterSpacing: 1.2,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                     SizedBox(height: 4.h),
-                    Text(ch.title, style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.white)),
+                    Text(
+                      ch.title,
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
                     SizedBox(height: 18.h),
-                    _StarRow(stars: math.min(widget.totalStars, 3), accentColor: ch.accentColor, ctrl: widget.starsCtrl),
+                    _StarRow(
+                      stars: math.min(widget.totalStars, 3),
+                      accentColor: ch.accentColor,
+                      ctrl: widget.starsCtrl,
+                    ),
                     SizedBox(height: 10.h),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20.w,
+                        vertical: 10.h,
+                      ),
                       decoration: BoxDecoration(
                         color: ch.accentColor.withValues(alpha: 0.10),
                         borderRadius: BorderRadius.circular(AppRadius.md),
-                        border: Border.all(color: ch.accentColor.withValues(alpha: 0.30)),
+                        border: Border.all(
+                          color: ch.accentColor.withValues(alpha: 0.30),
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text('⭐', style: TextStyle(fontSize: 20.sp)),
                           SizedBox(width: AppSpacing.sm),
-                          Text('${widget.totalStars} / $maxStars', style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900, color: Colors.white)),
+                          Text(
+                            '${widget.totalStars} / $maxStars',
+                            style: TextStyle(
+                              fontSize: 20.sp,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
                           SizedBox(width: AppSpacing.sm),
-                          Text('stars', style: TextStyle(fontSize: 12.sp, color: Colors.white.withValues(alpha: 0.5))),
+                          Text(
+                            'stars',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: Colors.white.withValues(alpha: 0.5),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -1425,12 +1916,22 @@ class _ChapterCompleteOverlayState extends State<_ChapterCompleteOverlay>
                       child: ElevatedButton.icon(
                         onPressed: widget.onHome,
                         icon: Icon(Icons.map_rounded, size: 16.sp),
-                        label: Text('Back to Adventure Map', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14.sp)),
+                        label: Text(
+                          'Back to Adventure Map',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 14.sp,
+                          ),
+                        ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: ch.accentColor, foregroundColor: Colors.white,
+                          backgroundColor: ch.accentColor,
+                          foregroundColor: Colors.white,
                           padding: EdgeInsets.symmetric(vertical: 13.h),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
-                          elevation: 4, shadowColor: ch.accentColor.withValues(alpha: 0.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.lg),
+                          ),
+                          elevation: 4,
+                          shadowColor: ch.accentColor.withValues(alpha: 0.5),
                         ),
                       ),
                     ),
