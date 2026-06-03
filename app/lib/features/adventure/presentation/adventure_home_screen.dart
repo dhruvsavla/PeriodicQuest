@@ -8,7 +8,6 @@ import '../data/story_quest_data.dart';
 import '../data/story_progress_repository.dart';
 import '../models/story_progress.dart';
 import '../models/story_quest.dart';
-import 'lab_experiment_screen.dart';
 import 'quest_game_screen.dart';
 
 // ─── Starfield background ─────────────────────────────────────────────────────
@@ -80,9 +79,8 @@ class _AdventureHomeScreenState extends State<AdventureHomeScreen>
       duration: const Duration(seconds: 4),
     )..repeat();
 
-    // +1 for the lab card at index 0
     _cardCtrls = List.generate(
-      kStoryChapters.length + 1,
+      kStoryChapters.length,
       (_) => AnimationController(
         vsync: this,
         duration: const Duration(milliseconds: 550),
@@ -193,67 +191,10 @@ class _AdventureHomeScreenState extends State<AdventureHomeScreen>
               width: w,
               child: ListView.separated(
                 padding: EdgeInsets.fromLTRB(sw * 0.05, 0, sw * 0.05, 32),
-                // +1 for the lab card, +1 for the "STORY QUESTS" section header
-                itemCount: kStoryChapters.length + 2,
+                itemCount: kStoryChapters.length,
                 separatorBuilder: (context, index) => const SizedBox(height: 18),
                 itemBuilder: (context, i) {
-                  // i == 0 → Lab card
-                  if (i == 0) {
-                    return AnimatedBuilder(
-                      animation: _cardCtrls[0],
-                      builder: (context, child) {
-                        final curve = CurvedAnimation(
-                          parent: _cardCtrls[0],
-                          curve: Curves.easeOutCubic,
-                        );
-                        return SlideTransition(
-                          position: Tween<Offset>(
-                            begin: const Offset(0, 0.25),
-                            end: Offset.zero,
-                          ).animate(curve),
-                          child: FadeTransition(opacity: curve, child: child),
-                        );
-                      },
-                      child: _LabCard(
-                        onTap: () => Navigator.push(
-                          context,
-                          slideRoute(const LabExperimentScreen()),
-                        ),
-                      ),
-                    );
-                  }
-
-                  // i == 1 → Section header
-                  if (i == 1) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8, bottom: 4),
-                      child: Row(
-                        children: [
-                          Text(
-                            'STORY QUESTS',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white.withValues(alpha: 0.35),
-                              letterSpacing: 1.4,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Container(
-                              height: 1,
-                              color: Colors.white.withValues(alpha: 0.08),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  // i >= 2 → Chapter cards (offset by 2, ctrl offset by 1)
-                  final ci = i - 2;
-                  final ctrlIndex = ci + 1;
-                  final chapter = kStoryChapters[ci];
+                  final chapter = kStoryChapters[i];
                   final isUnlocked = totalStars >= chapter.unlockRequiredStars;
                   final chStars = progress.starsForChapter(
                     chapter.id,
@@ -261,10 +202,10 @@ class _AdventureHomeScreenState extends State<AdventureHomeScreen>
                   );
 
                   return AnimatedBuilder(
-                    animation: _cardCtrls[ctrlIndex],
+                    animation: _cardCtrls[i],
                     builder: (context, child) {
                       final curve = CurvedAnimation(
-                        parent: _cardCtrls[ctrlIndex],
+                        parent: _cardCtrls[i],
                         curve: Curves.easeOutCubic,
                       );
                       return SlideTransition(
@@ -355,168 +296,6 @@ class _StarPill extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ─── Lab card ─────────────────────────────────────────────────────────────────
-
-class _LabCard extends StatefulWidget {
-  final VoidCallback onTap;
-  const _LabCard({required this.onTap});
-
-  @override
-  State<_LabCard> createState() => _LabCardState();
-}
-
-class _LabCardState extends State<_LabCard>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _pressCtrl;
-
-  @override
-  void initState() {
-    super.initState();
-    _pressCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 90),
-      lowerBound: 0.97,
-      upperBound: 1.0,
-      value: 1.0,
-    );
-  }
-
-  @override
-  void dispose() {
-    _pressCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    const accent = Color(0xFF10B981);
-    const bgDark = Color(0xFF021A0F);
-    const bgLight = Color(0xFF053020);
-
-    return GestureDetector(
-      onTapDown: (details) => _pressCtrl.reverse(),
-      onTapUp: (_) {
-        _pressCtrl.forward();
-        widget.onTap();
-      },
-      onTapCancel: () => _pressCtrl.forward(),
-      child: AnimatedBuilder(
-        animation: _pressCtrl,
-        builder: (context, child) =>
-            Transform.scale(scale: _pressCtrl.value, child: child),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [bgDark, bgLight],
-            ),
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(
-              color: accent.withValues(alpha: 0.40),
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: accent.withValues(alpha: 0.12),
-                blurRadius: 20,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              // Decorative glow
-              Positioned(
-                right: -20,
-                top: -20,
-                child: Container(
-                  width: 110,
-                  height: 110,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        accent.withValues(alpha: 0.18),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Flask icon badge
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: accent.withValues(alpha: 0.12),
-                        border: Border.all(
-                          color: accent.withValues(alpha: 0.35),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: const Center(
-                        child: Text('⚗️', style: TextStyle(fontSize: 26)),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'FREE PLAY',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: accent,
-                              letterSpacing: 0.8,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          const Text(
-                            'Lab Experiment',
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
-                              height: 1.1,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            'Mix any two elements and discover what they form',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.white.withValues(alpha: 0.55),
-                              height: 1.3,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: accent.withValues(alpha: 0.7),
-                      size: 26,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
