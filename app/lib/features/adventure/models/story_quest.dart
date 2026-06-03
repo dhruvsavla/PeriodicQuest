@@ -17,10 +17,13 @@ class MultiChoiceOption {
 class StoryQuest {
   final int id;
   final String title;
+  final String? titleEs;
   final String story;
+  final String? storyEs;
   final String sceneEmoji;
   final QuestType type;
   final String challenge;
+  final String? challengeEs;
 
   // identify: targetZ + distractorZs (8 elements)
   final int? targetZ;
@@ -39,10 +42,13 @@ class StoryQuest {
   const StoryQuest({
     required this.id,
     required this.title,
+    this.titleEs,
     required this.story,
+    this.storyEs,
     required this.sceneEmoji,
     required this.type,
     required this.challenge,
+    this.challengeEs,
     this.targetZ,
     this.distractorZs,
     this.combineZA,
