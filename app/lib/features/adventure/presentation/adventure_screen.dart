@@ -11,8 +11,9 @@ import '../../../shared/widgets/animated_cloud.dart';
 import '../../../shared/widgets/pill_back_button.dart';
 import '../../../shared/widgets/sparkle_band.dart';
 import '../../../shared/widgets/twinkling_sparkle_field.dart';
+import '../../../core/router/app_navigation.dart';
+import 'adventure_home_screen.dart';
 import 'lab_experiment_screen.dart';
-import 'story_quest_screen.dart';
 
 class AdventurePage extends StatefulWidget {
   const AdventurePage({super.key});
@@ -135,18 +136,22 @@ class _AdventurePageState extends State<AdventurePage>
                   ),
                   child: _PillTabSwitcher(
                     selectedIndex: _tab,
-                    onTabChanged: (i) => setState(() => _tab = i),
+                    onTabChanged: (i) {
+                      if (i == 1) {
+                        Navigator.push(
+                          context,
+                          slideRoute(const AdventureHomeScreen()),
+                        );
+                      } else {
+                        setState(() => _tab = i);
+                      }
+                    },
                     tabs: const ['🧪  Lab Experiment', '🗺️  Story Quest'],
                   ),
                 ),
                 SizedBox(height: h * 0.014),
                 // ── Tab content ──────────────────────────────────────────────
-                Expanded(
-                  child: IndexedStack(
-                    index: _tab,
-                    children: const [LabExperimentScreen(), StoryQuestScreen()],
-                  ),
-                ),
+                const Expanded(child: LabExperimentScreen()),
               ],
             ),
           ),
