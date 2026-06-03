@@ -12,7 +12,32 @@ import 'package:app/features/quiz/presentation/quiz_home_page.dart';
 import 'package:app/features/quiz/presentation/quiz_result_page.dart';
 import 'package:app/features/quiz/presentation/widgets/quiz_option_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+const _defaultTestSize = Size(1194, 834);
+
+Future<void> _pumpResponsiveApp(
+  WidgetTester tester,
+  Widget home, {
+  Size? size,
+}) async {
+  final targetSize = size ?? _defaultTestSize;
+  tester.view
+    ..physicalSize = targetSize
+    ..devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+
+  await tester.pumpWidget(
+    ScreenUtilInit(
+      designSize: const Size(834, 1194),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) => MaterialApp(home: child),
+      child: home,
+    ),
+  );
+}
 
 void main() {
   const generator = QuizQuestionGenerator();
@@ -23,15 +48,10 @@ void main() {
       final sizes = <Size>[const Size(834, 1194), const Size(1194, 834)];
 
       for (final size in sizes) {
-        tester.view
-          ..physicalSize = size
-          ..devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: QuizHomePage(questionGenerator: generator, randomSeed: 4),
-          ),
+        await _pumpResponsiveApp(
+          tester,
+          const QuizHomePage(questionGenerator: generator, randomSeed: 4),
+          size: size,
         );
         await tester.pumpAndSettle();
 
@@ -39,14 +59,13 @@ void main() {
         expect(homeBackButton, findsOneWidget);
         expect(tester.getTopLeft(homeBackButton).dy, lessThan(140));
 
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: QuizGamePage(
-              mode: QuizModeType.challenge,
-              initialLanguage: QuizLanguage.english,
-              questionGenerator: generator,
-              randomSeed: 9,
-            ),
+        await _pumpResponsiveApp(
+          tester,
+          const QuizGamePage(
+            mode: QuizModeType.challenge,
+            initialLanguage: QuizLanguage.english,
+            questionGenerator: generator,
+            randomSeed: 9,
           ),
         );
         await tester.pumpAndSettle();
@@ -61,10 +80,9 @@ void main() {
   testWidgets('Tapping Quiz Mode from GameModePage opens Quiz Home page', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: GameModePage(quizQuestionGenerator: generator, quizRandomSeed: 3),
-      ),
+    await _pumpResponsiveApp(
+      tester,
+      const GameModePage(quizQuestionGenerator: generator, quizRandomSeed: 3),
     );
 
     await tester.tap(find.text('Quiz Mode').first);
@@ -76,10 +94,9 @@ void main() {
   });
 
   testWidgets('Language toggle appears on QuizHomePage', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: QuizHomePage(questionGenerator: generator, randomSeed: 4),
-      ),
+    await _pumpResponsiveApp(
+      tester,
+      const QuizHomePage(questionGenerator: generator, randomSeed: 4),
     );
 
     expect(find.text('English'), findsOneWidget);
@@ -89,10 +106,9 @@ void main() {
   testWidgets('QuizHomePage no longer shows the favorite challenge subtitle', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: QuizHomePage(questionGenerator: generator, randomSeed: 4),
-      ),
+    await _pumpResponsiveApp(
+      tester,
+      const QuizHomePage(questionGenerator: generator, randomSeed: 4),
     );
 
     expect(find.text('Choose your favorite challenge'), findsNothing);
@@ -107,14 +123,13 @@ void main() {
           .first;
       final firstOption = firstQuestion.options.first;
 
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: QuizGamePage(
-            mode: QuizModeType.challenge,
-            initialLanguage: QuizLanguage.english,
-            questionGenerator: generator,
-            randomSeed: 9,
-          ),
+      await _pumpResponsiveApp(
+        tester,
+        const QuizGamePage(
+          mode: QuizModeType.challenge,
+          initialLanguage: QuizLanguage.english,
+          questionGenerator: generator,
+          randomSeed: 9,
         ),
       );
 
@@ -146,14 +161,13 @@ void main() {
       random: Random(12),
     );
 
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: QuizGamePage(
-          mode: QuizModeType.quick,
-          initialLanguage: QuizLanguage.english,
-          questionGenerator: generator,
-          randomSeed: 12,
-        ),
+    await _pumpResponsiveApp(
+      tester,
+      const QuizGamePage(
+        mode: QuizModeType.quick,
+        initialLanguage: QuizLanguage.english,
+        questionGenerator: generator,
+        randomSeed: 12,
       ),
     );
 
@@ -185,14 +199,13 @@ void main() {
         .generateQuestions(mode: QuizModeType.quick, random: Random(8))
         .first;
 
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: QuizGamePage(
-          mode: QuizModeType.quick,
-          initialLanguage: QuizLanguage.english,
-          questionGenerator: generator,
-          randomSeed: 8,
-        ),
+    await _pumpResponsiveApp(
+      tester,
+      const QuizGamePage(
+        mode: QuizModeType.quick,
+        initialLanguage: QuizLanguage.english,
+        questionGenerator: generator,
+        randomSeed: 8,
       ),
     );
 
@@ -213,14 +226,13 @@ void main() {
         .generateQuestions(mode: QuizModeType.challenge, random: Random(10))
         .first;
 
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: QuizGamePage(
-          mode: QuizModeType.challenge,
-          initialLanguage: QuizLanguage.english,
-          questionGenerator: generator,
-          randomSeed: 10,
-        ),
+    await _pumpResponsiveApp(
+      tester,
+      const QuizGamePage(
+        mode: QuizModeType.challenge,
+        initialLanguage: QuizLanguage.english,
+        questionGenerator: generator,
+        randomSeed: 10,
       ),
     );
 
@@ -269,12 +281,11 @@ void main() {
       hintsUsed: 0,
     );
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: QuizResultPage(
-          result: result,
-          leaderboardRepository: leaderboardRepository,
-        ),
+    await _pumpResponsiveApp(
+      tester,
+      QuizResultPage(
+        result: result,
+        leaderboardRepository: leaderboardRepository,
       ),
     );
     await tester.pumpAndSettle();
@@ -344,12 +355,11 @@ void main() {
         hintsUsed: 0,
       );
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: QuizResultPage(
-            result: result,
-            leaderboardRepository: leaderboardRepository,
-          ),
+      await _pumpResponsiveApp(
+        tester,
+        QuizResultPage(
+          result: result,
+          leaderboardRepository: leaderboardRepository,
         ),
       );
 

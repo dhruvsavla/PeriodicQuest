@@ -17,39 +17,6 @@ class QuizLanguageToggle extends StatelessWidget {
     final strings = QuizStrings.of(selectedLanguage);
     final colorScheme = Theme.of(context).colorScheme;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _LanguageChip(
-              label: strings.englishLabel,
-              isSelected: selectedLanguage == QuizLanguage.english,
-              activeColor: colorScheme.primary,
-              onTap: () => onChanged(QuizLanguage.english),
-            ),
-            const SizedBox(width: 6),
-            _LanguageChip(
-              label: strings.spanishLabel,
-              isSelected: selectedLanguage == QuizLanguage.spanish,
-              activeColor: colorScheme.primary,
-              onTap: () => onChanged(QuizLanguage.spanish),
-            ),
-          ],
-        ),
-      ),
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxWidth = constraints.maxWidth.isFinite
@@ -117,14 +84,6 @@ class _LanguageChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? activeColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
       borderRadius: BorderRadius.circular(compact ? 12 : 16),
       onTap: onTap,
       child: AnimatedContainer(

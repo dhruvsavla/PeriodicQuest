@@ -31,6 +31,7 @@ class LabExperimentScreen extends StatefulWidget {
 class _LabExperimentScreenState extends State<LabExperimentScreen>
     with TickerProviderStateMixin {
   final _audio = ElementAudioService.instance;
+  bool _showSpanish = false;
 
   ChemicalElement? _slotA;
   ChemicalElement? _slotB;
@@ -152,9 +153,7 @@ class _LabExperimentScreenState extends State<LabExperimentScreen>
       if (!mounted) return;
       setState(() => _showResult = true);
       _resultCtrl.forward(from: 0);
-      await _audio.speakText(
-        'You created ${reaction.compound}! ${reaction.fact}',
-      );
+      await _speakReaction(reaction);
     } else {
       _shakeCtrl.forward(from: 0);
       _noReactionCtrl.forward(from: 0);
@@ -163,6 +162,16 @@ class _LabExperimentScreenState extends State<LabExperimentScreen>
       if (!mounted) return;
       await _noReactionCtrl.reverse();
     }
+  }
+
+  Future<void> _speakReaction(LabReaction reaction) async {
+    final text = _showSpanish
+        ? 'Creaste ${reaction.compound}. Dato curioso: ${reaction.fact}'
+        : 'You created ${reaction.compound}. ${reaction.fact}';
+    await _audio.speakText(
+      text: text,
+      languageCode: _showSpanish ? 'es-ES' : 'en-US',
+    );
   }
 
   // ── Build ────────────────────────────────────────────────────────────────────
@@ -196,19 +205,16 @@ class _LabExperimentScreenState extends State<LabExperimentScreen>
                 // How tall the workbench container can be without overflowing.
                 // 0.08 accounts for spacers between title/hint/container
                 // and the no-reaction banner gap below.
-                final maxContainerH =
-                    availH - vPad - titleHint - availH * 0.08;
+                final maxContainerH = availH - vPad - titleHint - availH * 0.08;
                 // Derive max slot size from that container budget.
-                final maxSlotH =
-                    (maxContainerH - containerPad * 2 - 32) / 1.18;
+                final maxSlotH = (maxContainerH - containerPad * 2 - 32) / 1.18;
                 final slotSz = math.min(
                   math.min(124.0, w * 0.28),
                   math.max(50.0, maxSlotH),
                 );
 
                 return Padding(
-                  padding:
-                      EdgeInsets.fromLTRB(pad, vPad, pad, 0),
+                  padding: EdgeInsets.fromLTRB(pad, vPad, pad, 0),
                   child: Column(
                     mainAxisAlignment: _showResult
                         ? MainAxisAlignment.start
@@ -216,20 +222,14 @@ class _LabExperimentScreenState extends State<LabExperimentScreen>
                     children: [
                       _buildLabTitle(w),
                       SizedBox(
-                        height: _showResult
-                            ? availH * 0.008
-                            : availH * 0.015,
+                        height: _showResult ? availH * 0.008 : availH * 0.015,
                       ),
                       _buildHintText(w),
                       SizedBox(
-                        height: _showResult
-                            ? availH * 0.012
-                            : availH * 0.025,
+                        height: _showResult ? availH * 0.012 : availH * 0.025,
                       ),
                       if (_showResult)
-                        Expanded(
-                          child: _buildWorkbenchArea(w, slotSz, availH),
-                        )
+                        Expanded(child: _buildWorkbenchArea(w, slotSz, availH))
                       else ...[
                         _buildWorkbenchArea(w, slotSz, availH),
                         SizedBox(height: availH * 0.02),
@@ -348,17 +348,14 @@ class _LabExperimentScreenState extends State<LabExperimentScreen>
             right: 4,
             child: CustomPaint(
               size: const Size(26, 32),
-              painter: _BeakerPainter(
-                color: _kLabAmber.withValues(alpha: 0.3),
-              ),
+              painter: _BeakerPainter(color: _kLabAmber.withValues(alpha: 0.3)),
             ),
           ),
           // Reaction row
           AnimatedBuilder(
             animation: Listenable.merge([_reactCtrl, _shakeCtrl]),
             builder: (context, child) {
-              final slotOpacity =
-                  (1.0 - _reactCtrl.value).clamp(0.0, 1.0);
+              final slotOpacity = (1.0 - _reactCtrl.value).clamp(0.0, 1.0);
               final shakeX =
                   math.sin(_shakeCtrl.value * math.pi * 5) *
                   11.0 *
@@ -379,8 +376,7 @@ class _LabExperimentScreenState extends State<LabExperimentScreen>
                   _buildSlot(w, slotSz, _slotA, isA: true),
                   SizedBox(width: w * 0.038),
                   _BunsenBurnerIcon(
-                    active: (_slotA != null && _slotB != null) ||
-                        _reactPending,
+                    active: (_slotA != null && _slotB != null) || _reactPending,
                   ),
                   SizedBox(width: w * 0.038),
                   _buildSlot(w, slotSz, _slotB, isA: false),
@@ -436,9 +432,7 @@ class _LabExperimentScreenState extends State<LabExperimentScreen>
       builder: (context, constraints) {
         final cardH = constraints.maxHeight;
         final sp = math.min(cardH * 0.018, 10.0);
-        return Center(
-          child: _buildResultCardContent(w, sp, cardH, r),
-        );
+        return Center(child: _buildResultCardContent(w, sp, cardH, r));
       },
     );
   }
@@ -568,9 +562,7 @@ class _LabExperimentScreenState extends State<LabExperimentScreen>
                       padding: EdgeInsets.only(bottom: w * 0.04),
                       child: Text(
                         r.emoji,
-                        style: TextStyle(
-                          fontSize: math.min(42.0, w * 0.105),
-                        ),
+                        style: TextStyle(fontSize: math.min(42.0, w * 0.105)),
                       ),
                     ),
                   ],
@@ -604,9 +596,7 @@ class _LabExperimentScreenState extends State<LabExperimentScreen>
                     ],
                   ),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: blendColor.withValues(alpha: 0.50),
-                  ),
+                  border: Border.all(color: blendColor.withValues(alpha: 0.50)),
                 ),
                 child: Text(
                   r.formula,
@@ -638,9 +628,19 @@ class _LabExperimentScreenState extends State<LabExperimentScreen>
                   Expanded(
                     child: _LabOutlineBtn(
                       icon: Icons.volume_up_rounded,
-                      label: 'Speak',
-                      onTap: () =>
-                          _audio.speakText('${r.compound}. ${r.fact}'),
+                      label: _showSpanish ? 'Reproducir' : 'Speak',
+                      onTap: () => _speakReaction(r),
+                    ),
+                  ),
+                  SizedBox(width: w * 0.020),
+                  Expanded(
+                    child: _LabOutlineBtn(
+                      icon: Icons.translate_rounded,
+                      label: _showSpanish ? 'English' : 'Español',
+                      onTap: () {
+                        setState(() => _showSpanish = !_showSpanish);
+                        _speakReaction(r);
+                      },
                     ),
                   ),
                   SizedBox(width: w * 0.030),
@@ -710,9 +710,7 @@ class _LabExperimentScreenState extends State<LabExperimentScreen>
       decoration: BoxDecoration(
         color: _kBenchMid,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
-        border: Border(
-          top: BorderSide(color: _kLabBorder, width: 1.5),
-        ),
+        border: Border(top: BorderSide(color: _kLabBorder, width: 1.5)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.35),
@@ -748,9 +746,7 @@ class _LabExperimentScreenState extends State<LabExperimentScreen>
               ],
             ),
           ),
-          Expanded(
-            child: _buildTrayPages(w, tileW, tileH, pad),
-          ),
+          Expanded(child: _buildTrayPages(w, tileW, tileH, pad)),
           _buildTrayDots(w),
           const SizedBox(height: 6),
         ],
@@ -758,12 +754,7 @@ class _LabExperimentScreenState extends State<LabExperimentScreen>
     );
   }
 
-  Widget _buildTrayPages(
-    double w,
-    double tileW,
-    double tileH,
-    double pad,
-  ) {
+  Widget _buildTrayPages(double w, double tileW, double tileH, double pad) {
     final tileSlot = tileW + 5.0; // tile width + margin
     final tilesPerRow = math.max(4, (w / tileSlot).floor());
     final tilesPerPage = tilesPerRow * 2;
@@ -793,14 +784,16 @@ class _LabExperimentScreenState extends State<LabExperimentScreen>
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children:
-                    rowA.map((e) => _buildTrayTile(e, tileW, tileH)).toList(),
+                children: rowA
+                    .map((e) => _buildTrayTile(e, tileW, tileH))
+                    .toList(),
               ),
               const SizedBox(height: 5),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children:
-                    rowB.map((e) => _buildTrayTile(e, tileW, tileH)).toList(),
+                children: rowB
+                    .map((e) => _buildTrayTile(e, tileW, tileH))
+                    .toList(),
               ),
             ],
           ),
@@ -904,8 +897,7 @@ class _LabExperimentScreenState extends State<LabExperimentScreen>
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) =>
-          _JournalSheet(discovered: List.unmodifiable(_discovered)),
+      builder: (_) => _JournalSheet(discovered: List.unmodifiable(_discovered)),
     );
   }
 }
@@ -1400,8 +1392,7 @@ class _JournalSheet extends StatelessWidget {
                 child: GridView.builder(
                   controller: scrollCtrl,
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
@@ -1410,8 +1401,9 @@ class _JournalSheet extends StatelessWidget {
                   itemCount: total,
                   itemBuilder: (_, i) {
                     final r = kLabReactions[i];
-                    final found =
-                        discovered.any((d) => d.compound == r.compound);
+                    final found = discovered.any(
+                      (d) => d.compound == r.compound,
+                    );
                     return _JournalCard(reaction: r, found: found);
                   },
                 ),
@@ -1569,8 +1561,7 @@ class _TestTubePainter extends CustomPainter {
     canvas.drawPath(
       tubePath,
       Paint()
-        ..color =
-            Colors.white.withValues(alpha: isEmpty ? 0.05 : 0.08)
+        ..color = Colors.white.withValues(alpha: isEmpty ? 0.05 : 0.08)
         ..style = PaintingStyle.fill,
     );
 
@@ -1741,7 +1732,13 @@ class _ErlenmeyerPainter extends CustomPainter {
 
     // Neck
     canvas.drawRRect(
-      RRect.fromLTRBR(w * 0.36, 0, w * 0.64, h * 0.38, const Radius.circular(2)),
+      RRect.fromLTRBR(
+        w * 0.36,
+        0,
+        w * 0.64,
+        h * 0.38,
+        const Radius.circular(2),
+      ),
       paint,
     );
 
@@ -1860,13 +1857,7 @@ class _ResultFlaskPainter extends CustomPainter {
     );
     // Rim – slightly wider than neck
     canvas.drawRRect(
-      RRect.fromLTRBR(
-        w * nL - 3,
-        -2,
-        w * nR + 3,
-        8,
-        const Radius.circular(3),
-      ),
+      RRect.fromLTRBR(w * nL - 3, -2, w * nR + 3, 8, const Radius.circular(3)),
       Paint()
         ..color = Colors.white.withValues(alpha: 0.22)
         ..style = PaintingStyle.fill,
@@ -1912,9 +1903,7 @@ class _ResultFlaskPainter extends CustomPainter {
           ],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-        ).createShader(
-          Rect.fromLTRB(w * 0.06, liquidY, w * 0.94, h * 0.93),
-        )
+        ).createShader(Rect.fromLTRB(w * 0.06, liquidY, w * 0.94, h * 0.93))
         ..style = PaintingStyle.fill,
     );
 

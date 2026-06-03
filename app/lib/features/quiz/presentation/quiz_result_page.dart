@@ -73,81 +73,6 @@ class _QuizResultPageState extends State<QuizResultPage> {
         height: double.infinity,
         decoration: const BoxDecoration(gradient: AppGradients.skyBlue),
         child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 900),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildTopBar(context),
-                    const SizedBox(height: 18),
-                    _buildScoreCard(),
-                    const SizedBox(height: 20),
-                    if (_qualifies) ...[
-                      _buildHighScorePanel(),
-                      const SizedBox(height: 20),
-                    ],
-                    if (_showsLeaderboard) ...[
-                      _buildLeaderboardCard(leaderboardEntries),
-                      const SizedBox(height: 20),
-                    ],
-                    _buildReviewHeader(),
-                    const SizedBox(height: 14),
-                    for (final answer in widget.result.answeredQuestions) ...[
-                      _buildAnswerReview(answer),
-                      const SizedBox(height: 12),
-                    ],
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pushReplacement(
-                          context,
-                          slideRoute(
-                            QuizGamePage(
-                              mode: widget.result.mode,
-                              initialLanguage: _language,
-                              questionGenerator: widget.questionGenerator,
-                              leaderboardRepository: _leaderboardRepository,
-                              randomSeed: widget.randomSeed,
-                            ),
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(54),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(22),
-                          ),
-                        ),
-                        child: Text(
-                          _strings.playAgainLabel,
-                          style: const TextStyle(fontWeight: FontWeight.w900),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context, _language),
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(54),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(22),
-                          ),
-                        ),
-                        child: Text(
-                          _strings.backToQuizMenuLabel,
-                          style: const TextStyle(fontWeight: FontWeight.w900),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
           child: LayoutBuilder(
             builder: (context, constraints) {
               final layout = QuizResponsiveLayout.resolve(
@@ -257,7 +182,6 @@ class _QuizResultPageState extends State<QuizResultPage> {
   Widget _buildTopBar(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth < 720) {
         final layout = QuizResponsiveLayout.resolve(
           context,
           constraints,
@@ -269,7 +193,6 @@ class _QuizResultPageState extends State<QuizResultPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PillBackButton(
-                contentWidth: constraints.maxWidth,
                 contentWidth: layout.contentWidth,
                 foreground: const Color(0xFF3D6B80),
                 label: _strings.backToQuizMenuLabel,
@@ -294,7 +217,6 @@ class _QuizResultPageState extends State<QuizResultPage> {
         return Row(
           children: [
             PillBackButton(
-              contentWidth: constraints.maxWidth,
               contentWidth: layout.contentWidth,
               foreground: const Color(0xFF3D6B80),
               label: _strings.backToQuizMenuLabel,
@@ -318,110 +240,6 @@ class _QuizResultPageState extends State<QuizResultPage> {
   Widget _buildScoreCard() {
     final score = widget.result.score;
     final total = widget.result.totalQuestions;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFFF0A6), Color(0xFFFFC8E0)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: const Color(0xFFFFD06B), width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFFFB84D).withValues(alpha: 0.24),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.8),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  _strings.scoreBurstLabel,
-                  style: const TextStyle(
-                    color: Color(0xFF6E4B1A),
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-              Text(
-                widget.result.mode == QuizModeType.quick ? '⚡' : '🏆',
-                style: const TextStyle(fontSize: 30),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            _strings.resultsLabel,
-            style: const TextStyle(
-              color: Color(0xFF17334A),
-              fontSize: 34,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 12),
-          TweenAnimationBuilder<int>(
-            tween: IntTween(begin: 0, end: score),
-            duration: const Duration(milliseconds: 700),
-            builder: (context, value, child) {
-              return Text(
-                _strings.scoreText(value, total),
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  color: const Color(0xFF17334A),
-                  fontWeight: FontWeight.w900,
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 10),
-          Text(
-            _strings.encouragementText(score, total),
-            style: const TextStyle(
-              color: Color(0xFF3E5F7B),
-              fontWeight: FontWeight.w800,
-              fontSize: 18,
-            ),
-          ),
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              _ScorePill(
-                icon: Icons.emoji_events_outlined,
-                label: '${_strings.scoreLabel}: $score/$total',
-              ),
-              _ScorePill(
-                icon: Icons.lightbulb_outline,
-                label: _strings.hintsLeftText(
-                  widget.result.mode == QuizModeType.challenge
-                      ? widget.result.mode.totalHints - widget.result.hintsUsed
-                      : 0,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     return LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxWidth < 500;

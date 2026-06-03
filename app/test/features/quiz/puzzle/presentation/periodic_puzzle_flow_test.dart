@@ -8,7 +8,32 @@ import 'package:app/features/quiz/puzzle/presentation/periodic_puzzle_game_page.
 import 'package:app/features/quiz/puzzle/presentation/periodic_puzzle_home_page.dart';
 import 'package:app/features/quiz/puzzle/presentation/periodic_puzzle_result_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+const _defaultTestSize = Size(1194, 834);
+
+Future<void> _pumpResponsiveApp(
+  WidgetTester tester,
+  Widget home, {
+  Size? size,
+}) async {
+  final targetSize = size ?? _defaultTestSize;
+  tester.view
+    ..physicalSize = targetSize
+    ..devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+
+  await tester.pumpWidget(
+    ScreenUtilInit(
+      designSize: const Size(834, 1194),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) => MaterialApp(home: child),
+      child: home,
+    ),
+  );
+}
 
 void main() {
   const generator = PeriodicPuzzleGenerator();
@@ -22,13 +47,10 @@ void main() {
       final sizes = <Size>[const Size(834, 1194), const Size(1194, 834)];
 
       for (final size in sizes) {
-        tester.view
-          ..physicalSize = size
-          ..devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-
-        await tester.pumpWidget(
-          const MaterialApp(home: PeriodicPuzzleHomePage()),
+        await _pumpResponsiveApp(
+          tester,
+          const PeriodicPuzzleHomePage(),
+          size: size,
         );
         await tester.pumpAndSettle();
 
@@ -36,9 +58,7 @@ void main() {
         expect(homeBackButton, findsOneWidget);
         expect(tester.getTopLeft(homeBackButton).dy, lessThan(140));
 
-        await tester.pumpWidget(
-          MaterialApp(home: PeriodicPuzzleGamePage(board: board)),
-        );
+        await _pumpResponsiveApp(tester, PeriodicPuzzleGamePage(board: board));
         await tester.pumpAndSettle();
 
         final gameBackButton = find.text('Back to quiz menu');
@@ -51,7 +71,7 @@ void main() {
   testWidgets('QuizHomePage shows Periodic Puzzle card and opens it', (
     tester,
   ) async {
-    await tester.pumpWidget(const MaterialApp(home: QuizHomePage()));
+    await _pumpResponsiveApp(tester, const QuizHomePage());
 
     final periodicPuzzleFinder = find.text('Periodic Puzzle');
     expect(periodicPuzzleFinder, findsOneWidget);
@@ -70,13 +90,9 @@ void main() {
     final repository = PeriodicPuzzleProgressRepository(clock: () => now);
     final board = generator.boardsForLayer(PeriodicPuzzleLayer.starter).single;
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: PeriodicPuzzleGamePage(
-          board: board,
-          progressRepository: repository,
-        ),
-      ),
+    await _pumpResponsiveApp(
+      tester,
+      PeriodicPuzzleGamePage(board: board, progressRepository: repository),
     );
 
     expect(find.text('Time: 00:00'), findsOneWidget);
@@ -95,9 +111,7 @@ void main() {
   testWidgets(
     'Puzzle home starts with Layer 1 unlocked and Layers 2/3 locked',
     (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: PeriodicPuzzleHomePage()),
-      );
+      await _pumpResponsiveApp(tester, const PeriodicPuzzleHomePage());
 
       expect(find.text('Unlocked'), findsOneWidget);
       expect(find.text('Locked'), findsNWidgets(2));
@@ -107,7 +121,7 @@ void main() {
   testWidgets('Language toggle updates puzzle home labels to Spanish', (
     tester,
   ) async {
-    await tester.pumpWidget(const MaterialApp(home: PeriodicPuzzleHomePage()));
+    await _pumpResponsiveApp(tester, const PeriodicPuzzleHomePage());
 
     await tester.tap(find.text('Español'));
     await tester.pumpAndSettle();
@@ -121,9 +135,7 @@ void main() {
   ) async {
     final board = generator.boardsForLayer(PeriodicPuzzleLayer.starter).single;
 
-    await tester.pumpWidget(
-      MaterialApp(home: PeriodicPuzzleGamePage(board: board)),
-    );
+    await _pumpResponsiveApp(tester, PeriodicPuzzleGamePage(board: board));
 
     expect(find.text('Fill this tile'), findsOneWidget);
     expect(find.byKey(const Key('puzzle-option-H')), findsOneWidget);
@@ -132,9 +144,7 @@ void main() {
   testWidgets('Selecting correct option fills the tile', (tester) async {
     final board = generator.boardsForLayer(PeriodicPuzzleLayer.starter).single;
 
-    await tester.pumpWidget(
-      MaterialApp(home: PeriodicPuzzleGamePage(board: board)),
-    );
+    await _pumpResponsiveApp(tester, PeriodicPuzzleGamePage(board: board));
 
     final correctOption = find.byKey(const Key('puzzle-option-H'));
     await tester.ensureVisible(correctOption);
@@ -153,13 +163,9 @@ void main() {
           .boardsForLayer(PeriodicPuzzleLayer.starter)
           .single;
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: PeriodicPuzzleGamePage(
-            board: board,
-            progressRepository: repository,
-          ),
-        ),
+      await _pumpResponsiveApp(
+        tester,
+        PeriodicPuzzleGamePage(board: board, progressRepository: repository),
       );
 
       final wrongOption = find.byKey(const Key('puzzle-option-He'));
@@ -185,13 +191,9 @@ void main() {
       );
     }
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: PeriodicPuzzleGamePage(
-          board: board,
-          progressRepository: repository,
-        ),
-      ),
+    await _pumpResponsiveApp(
+      tester,
+      PeriodicPuzzleGamePage(board: board, progressRepository: repository),
     );
 
     final finalOption = find.byKey(const Key('puzzle-option-H'));
@@ -218,13 +220,9 @@ void main() {
     }
     repository.completeBoard(board: board, siblingBoardIds: [board.id]);
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: PeriodicPuzzleResultPage(
-          board: board,
-          progressRepository: repository,
-        ),
-      ),
+    await _pumpResponsiveApp(
+      tester,
+      PeriodicPuzzleResultPage(board: board, progressRepository: repository),
     );
 
     expect(find.byKey(const Key('puzzle-next-layer')), findsOneWidget);
@@ -251,13 +249,9 @@ void main() {
           .toList(),
     );
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: PeriodicPuzzleResultPage(
-          board: board,
-          progressRepository: repository,
-        ),
-      ),
+    await _pumpResponsiveApp(
+      tester,
+      PeriodicPuzzleResultPage(board: board, progressRepository: repository),
     );
 
     expect(find.byKey(const Key('puzzle-next-group')), findsOneWidget);
@@ -292,14 +286,13 @@ void main() {
       );
     }
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: PeriodicPuzzleResultPage(
-          board: generator.boardsForLayer(PeriodicPuzzleLayer.mixed).single,
-          progressRepository: repository,
-          bestTimesRepository: bestTimesRepository,
-          initialLanguage: QuizLanguage.english,
-        ),
+    await _pumpResponsiveApp(
+      tester,
+      PeriodicPuzzleResultPage(
+        board: generator.boardsForLayer(PeriodicPuzzleLayer.mixed).single,
+        progressRepository: repository,
+        bestTimesRepository: bestTimesRepository,
+        initialLanguage: QuizLanguage.english,
       ),
     );
 

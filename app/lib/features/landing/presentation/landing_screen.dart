@@ -1,9 +1,13 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../core/constants/app_durations.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/responsive/app_sizes.dart';
+import '../../../core/responsive/app_spacing.dart';
+import '../../../core/responsive/responsive.dart';
 import '../../../core/router/app_navigation.dart';
 import '../../../shared/decorations/app_gradients.dart';
 import '../../../shared/widgets/animated_cloud.dart';
@@ -70,9 +74,13 @@ class _LandingPageState extends State<LandingPage>
   Widget _buildLayout(BuildContext context, BoxConstraints bc) {
     final sw = bc.maxWidth; // full screen width — clouds/sparkles use this
     final h = bc.maxHeight;
-    final w = math.min(sw, 860.0); // content width cap
+    final isLandscape = Responsive.isLandscape(context);
+    final w = math.min(
+      sw,
+      Responsive.contentMaxWidth(context),
+    ); // content width cap
     final lh = math.min(h, w * 1.85);
-    final cardSz = math.min(w * 0.22, 110.0);
+    final cardSz = math.min(w * (isLandscape ? 0.18 : 0.22), 110.w);
 
     return Stack(
       children: [
@@ -116,12 +124,12 @@ class _LandingPageState extends State<LandingPage>
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: lh * 0.030),
-                LandingOutlinedTitle(fontSize: math.min(52.0, w * 0.11)),
+                LandingOutlinedTitle(fontSize: math.min(52.sp, w * 0.11)),
                 SizedBox(height: lh * 0.008),
                 Text(
                   AppStrings.tagline,
                   style: TextStyle(
-                    fontSize: math.min(18.0, w * 0.039),
+                    fontSize: math.min(AppSizes.subtitleFont, w * 0.039),
                     color: const Color(0xFF3D6B80),
                     fontWeight: FontWeight.w600,
                   ),
@@ -190,9 +198,9 @@ class _LandingPageState extends State<LandingPage>
                 ),
                 Padding(
                   padding: EdgeInsets.fromLTRB(
-                    w * 0.10,
+                    math.max(w * 0.08, AppSpacing.md),
                     0,
-                    w * 0.10,
+                    math.max(w * 0.08, AppSpacing.md),
                     lh * 0.032,
                   ),
                   child: _startButton(context, w, lh),
@@ -347,7 +355,7 @@ class _LandingPageState extends State<LandingPage>
   // ── Start button with press animation ─────────────────────────────────────
 
   Widget _startButton(BuildContext context, double w, double h) {
-    final clampedH = (h * 0.082).clamp(48.0, 70.0);
+    final clampedH = (h * 0.082).clamp(48.h, 70.h);
     return GestureDetector(
       onTapDown: (_) => _btnCtrl.forward(),
       onTapUp: (_) => _btnCtrl.reverse(),
@@ -384,10 +392,10 @@ class _LandingPageState extends State<LandingPage>
           child: Text(
             AppStrings.startGame,
             style: TextStyle(
-              fontSize: math.min(18.0, w * 0.048),
+              fontSize: math.min(AppSizes.subtitleFont, w * 0.048),
               fontWeight: FontWeight.w900,
               color: const Color(0xFF7A4800),
-              letterSpacing: 3.0,
+              letterSpacing: 3.w,
             ),
           ),
         ),
@@ -414,7 +422,7 @@ class LandingOutlinedTitle extends StatelessWidget {
             fontWeight: FontWeight.w900,
             foreground: Paint()
               ..style = PaintingStyle.stroke
-              ..strokeWidth = 9
+              ..strokeWidth = 9.r
               ..strokeJoin = StrokeJoin.round
               ..color = const Color(0xFFFFD080),
           ),
@@ -426,7 +434,7 @@ class LandingOutlinedTitle extends StatelessWidget {
             fontWeight: FontWeight.w900,
             foreground: Paint()
               ..style = PaintingStyle.stroke
-              ..strokeWidth = 4
+              ..strokeWidth = 4.r
               ..strokeJoin = StrokeJoin.round
               ..color = const Color(0xFFCC8820),
           ),

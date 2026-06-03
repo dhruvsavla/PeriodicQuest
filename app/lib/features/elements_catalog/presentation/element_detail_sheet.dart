@@ -1,20 +1,20 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../core/audio/element_audio_service.dart';
+import '../../../core/responsive/app_radius.dart';
+import '../../../core/responsive/app_sizes.dart';
+import '../../../core/responsive/app_spacing.dart';
+import '../../../core/responsive/responsive.dart';
 import '../../../domain/elements/chemical_element.dart';
 import '../../../domain/elements/element_translations_es.dart';
 
 class ElementDetailSheet extends StatefulWidget {
   final ChemicalElement elem;
-  final double screenW;
 
-  const ElementDetailSheet({
-    super.key,
-    required this.elem,
-    required this.screenW,
-  });
+  const ElementDetailSheet({super.key, required this.elem});
 
   @override
   State<ElementDetailSheet> createState() => _ElementDetailSheetState();
@@ -24,11 +24,20 @@ class _ElementDetailSheetState extends State<ElementDetailSheet> {
   final _audio = ElementAudioService.instance;
   bool _showSpanish = false;
 
+  Future<void> _speakCurrentElement() async {
+    final es = kElementTranslationsEs[widget.elem.z];
+    final text = _showSpanish
+        ? '${es?.name ?? widget.elem.name}. ${es?.fact ?? widget.elem.fact}'
+        : '${widget.elem.name}. ${widget.elem.fact}';
+    final languageCode = _showSpanish ? 'es-ES' : 'en-US';
+    await _audio.speakText(text: text, languageCode: languageCode);
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _audio.speakElement(widget.elem);
+      if (mounted) _speakCurrentElement();
     });
   }
 
@@ -41,7 +50,7 @@ class _ElementDetailSheetState extends State<ElementDetailSheet> {
   @override
   Widget build(BuildContext context) {
     final color = periodicCategoryColor(widget.elem.cat);
-    final dw = math.min(widget.screenW * 0.92, 440.0);
+    final dw = Responsive.modalWidth(context);
     final es = kElementTranslationsEs[widget.elem.z];
 
     return Material(
@@ -49,17 +58,18 @@ class _ElementDetailSheetState extends State<ElementDetailSheet> {
       child: Container(
         width: dw,
         constraints: BoxConstraints(
+          maxWidth: AppSizes.modalWidth,
           maxHeight: MediaQuery.of(context).size.height * 0.88,
         ),
-        margin: const EdgeInsets.symmetric(horizontal: 12),
+        margin: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(26),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.28),
-              blurRadius: 32,
-              offset: const Offset(0, 12),
+              blurRadius: 32.r,
+              offset: Offset(0, 12.h),
             ),
           ],
         ),
@@ -86,16 +96,16 @@ class _ElementDetailSheetState extends State<ElementDetailSheet> {
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
-                      width: 30,
-                      height: 30,
+                      width: 30.w,
+                      height: 30.w,
                       decoration: const BoxDecoration(
                         color: Color(0xFFEEEEEE),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.close,
-                        size: 17,
-                        color: Color(0xFF555555),
+                        size: 17.sp,
+                        color: const Color(0xFF555555),
                       ),
                     ),
                   ),
@@ -138,10 +148,10 @@ class _ElementDetailSheetState extends State<ElementDetailSheet> {
                 padding: EdgeInsets.all(dw * 0.038),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF9C4),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                   border: Border.all(
                     color: const Color(0xFFFFE082),
-                    width: 1.5,
+                    width: 1.5.w,
                   ),
                 ),
                 child: Column(
@@ -175,16 +185,19 @@ class _ElementDetailSheetState extends State<ElementDetailSheet> {
                 children: [
                   Expanded(
                     child: _AudioReplayButton(
-                      elem: widget.elem,
                       audio: _audio,
                       dw: dw,
+                      showSpanish: _showSpanish,
+                      onReplay: _speakCurrentElement,
                     ),
                   ),
                   SizedBox(width: dw * 0.026),
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () =>
-                          setState(() => _showSpanish = !_showSpanish),
+                      onPressed: () {
+                        setState(() => _showSpanish = !_showSpanish);
+                        _speakCurrentElement();
+                      },
                       style: OutlinedButton.styleFrom(
                         foregroundColor: _showSpanish
                             ? const Color(0xFF7A4A00)
@@ -198,9 +211,9 @@ class _ElementDetailSheetState extends State<ElementDetailSheet> {
                             ? const Color(0xFFFFF3DC)
                             : null,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(AppRadius.lg),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
                       ),
                       child: Text(
                         _showSpanish ? 'English' : 'Traducir',
@@ -220,7 +233,7 @@ class _ElementDetailSheetState extends State<ElementDetailSheet> {
                     backgroundColor: const Color(0xFF5B8BE8),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
                     ),
                     padding: EdgeInsets.symmetric(vertical: dw * 0.036),
                     elevation: 3,
@@ -244,7 +257,7 @@ class _ElementDetailSheetState extends State<ElementDetailSheet> {
   Widget _infoRow(String label, String value) {
     return RichText(
       text: TextSpan(
-        style: const TextStyle(fontSize: 13, color: Color(0xFF333333)),
+        style: TextStyle(fontSize: 13.sp, color: const Color(0xFF333333)),
         children: [
           TextSpan(
             text: label,
@@ -260,14 +273,16 @@ class _ElementDetailSheetState extends State<ElementDetailSheet> {
 // ─── Audio replay button ──────────────────────────────────────────────────────
 
 class _AudioReplayButton extends StatelessWidget {
-  final ChemicalElement elem;
   final ElementAudioService audio;
   final double dw;
+  final bool showSpanish;
+  final Future<void> Function() onReplay;
 
   const _AudioReplayButton({
-    required this.elem,
     required this.audio,
     required this.dw,
+    required this.showSpanish,
+    required this.onReplay,
   });
 
   @override
@@ -276,7 +291,7 @@ class _AudioReplayButton extends StatelessWidget {
       valueListenable: audio.isPlaying,
       builder: (context, playing, _) {
         return OutlinedButton(
-          onPressed: playing ? null : () => audio.speakElement(elem),
+          onPressed: playing ? null : onReplay,
           style: OutlinedButton.styleFrom(
             foregroundColor: playing
                 ? const Color(0xFF3A7A5A)
@@ -287,18 +302,20 @@ class _AudioReplayButton extends StatelessWidget {
                   : const Color(0xFFB8D4E8),
             ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(AppRadius.lg),
             ),
-            padding: const EdgeInsets.symmetric(vertical: 10),
+            padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               if (playing) _PulsingDot() else const Text('🔊'),
-              const SizedBox(width: 4),
+              SizedBox(width: 4.w),
               Text(
-                playing ? 'Playing…' : 'Play Audio',
+                playing
+                    ? (showSpanish ? 'Reproduciendo…' : 'Playing…')
+                    : (showSpanish ? 'Reproducir audio' : 'Play Audio'),
                 style: TextStyle(fontSize: math.min(12.0, dw * 0.030)),
               ),
             ],

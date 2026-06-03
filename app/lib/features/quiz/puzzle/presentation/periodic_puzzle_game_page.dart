@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:app/core/router/app_navigation.dart';
-import 'package:app/features/quiz/models/quiz_language.dart';
-import 'package:app/features/quiz/presentation/widgets/quiz_language_toggle.dart';
 import 'package:app/core/audio/element_audio_service.dart';
 import 'package:app/core/router/app_navigation.dart';
 import 'package:app/features/quiz/models/quiz_language.dart';
@@ -125,75 +122,6 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
         height: double.infinity,
         decoration: const BoxDecoration(gradient: AppGradients.skyBlue),
         child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 980),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        PillBackButton(
-                          contentWidth: 980,
-                          foreground: const Color(0xFF3D6B80),
-                          label: _strings.backToQuizMenuLabel,
-                          onTap: () => Navigator.pop(context, _language),
-                        ),
-                        const Spacer(),
-                        QuizLanguageToggle(
-                          selectedLanguage: _language,
-                          onChanged: (value) {
-                            setState(() {
-                              _language = value;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildHeader(),
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.92),
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          PeriodicPuzzleBoardWidget(
-                            board: widget.board,
-                            language: _language,
-                            filledTileIds: _boardProgress.filledTileIds,
-                            selectedTileId: _selectedTileId,
-                            completedTileId: _completedTileId,
-                            onTileTap: (tile) {
-                              setState(() {
-                                _selectedTileId = tile.id;
-                              });
-                            },
-                            localizedNameForTile: (tile) => widget.generator
-                                .localizedElementName(tile.element, _language),
-                          ),
-                          if (_isComplete) ...[
-                            const SizedBox(height: 18),
-                            _buildCompleteBanner(),
-                          ] else ...[
-                            const SizedBox(height: 18),
-                            _buildSelectionPanel(),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
           child: LayoutBuilder(
             builder: (context, constraints) {
               final layout = QuizResponsiveLayout.resolve(
@@ -206,7 +134,7 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
                 alignment: Alignment.topCenter,
                 child: SizedBox(
                   width: layout.contentWidth,
-                  child: SingleChildScrollView(
+                  child: Padding(
                     padding: EdgeInsets.fromLTRB(
                       layout.horizontalPadding,
                       layout.topPadding,
@@ -277,42 +205,105 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
                         const SizedBox(height: 12),
                         _buildHeader(),
                         const SizedBox(height: 12),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.92),
-                            borderRadius: BorderRadius.circular(28),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              PeriodicPuzzleBoardWidget(
-                                board: widget.board,
-                                language: _language,
-                                filledTileIds: _boardProgress.filledTileIds,
-                                selectedTileId: _selectedTileId,
-                                completedTileId: _completedTileId,
-                                onTileTap: (tile) {
-                                  setState(() {
-                                    _selectedTileId = tile.id;
-                                  });
-                                  _speakSelectedTileClue(force: true);
-                                },
-                                localizedNameForTile: (tile) =>
-                                    widget.generator.localizedElementName(
-                                      tile.element,
-                                      _language,
+                        Expanded(
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.92),
+                              borderRadius: BorderRadius.circular(28),
+                            ),
+                            child: LayoutBuilder(
+                              builder: (context, innerConstraints) {
+                                final sideBySide =
+                                    !layout.stackTopBar &&
+                                    innerConstraints.maxWidth >= 860 &&
+                                    constraints.maxHeight >= 560;
+
+                                if (sideBySide) {
+                                  return Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        flex: 11,
+                                        child: PeriodicPuzzleBoardWidget(
+                                          board: widget.board,
+                                          language: _language,
+                                          filledTileIds:
+                                              _boardProgress.filledTileIds,
+                                          selectedTileId: _selectedTileId,
+                                          completedTileId: _completedTileId,
+                                          onTileTap: (tile) {
+                                            setState(() {
+                                              _selectedTileId = tile.id;
+                                            });
+                                            _speakSelectedTileClue(force: true);
+                                          },
+                                          localizedNameForTile: (tile) => widget
+                                              .generator
+                                              .localizedElementName(
+                                                tile.element,
+                                                _language,
+                                              ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      Expanded(
+                                        flex: 10,
+                                        child: LayoutBuilder(
+                                          builder:
+                                              (context, panelConstraints) =>
+                                                  _isComplete
+                                                  ? _buildCompleteBanner()
+                                                  : _buildSelectionPanel(
+                                                      dense: true,
+                                                      forceTwoColumns: true,
+                                                      fitToViewport: true,
+                                                    ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    PeriodicPuzzleBoardWidget(
+                                      board: widget.board,
+                                      language: _language,
+                                      filledTileIds:
+                                          _boardProgress.filledTileIds,
+                                      selectedTileId: _selectedTileId,
+                                      completedTileId: _completedTileId,
+                                      onTileTap: (tile) {
+                                        setState(() {
+                                          _selectedTileId = tile.id;
+                                        });
+                                        _speakSelectedTileClue(force: true);
+                                      },
+                                      localizedNameForTile: (tile) =>
+                                          widget.generator.localizedElementName(
+                                            tile.element,
+                                            _language,
+                                          ),
                                     ),
-                              ),
-                              if (_isComplete) ...[
-                                const SizedBox(height: 18),
-                                _buildCompleteBanner(),
-                              ] else ...[
-                                const SizedBox(height: 18),
-                                _buildSelectionPanel(),
-                              ],
-                            ],
+                                    if (_isComplete) ...[
+                                      const SizedBox(height: 18),
+                                      _buildCompleteBanner(),
+                                    ] else ...[
+                                      const SizedBox(height: 18),
+                                      Expanded(
+                                        child: SingleChildScrollView(
+                                          child: _buildSelectionPanel(),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ],
@@ -383,20 +374,99 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
     );
   }
 
-  Widget _buildSelectionPanel() {
+  Widget _buildSelectionPanel({
+    bool dense = false,
+    bool forceTwoColumns = false,
+    bool fitToViewport = false,
+  }) {
     final tile = _selectedTile ?? _firstOpenTile;
     if (tile == null) {
       return const SizedBox.shrink();
     }
 
     final options = tile.options;
+    final hasHint = _hintTileId != null && _hintTileId == tile.id;
+    final hasFeedback = _lastAnswerWasCorrect != null;
+
+    Widget optionGrid({required bool twoColumns}) {
+      if (!fitToViewport) {
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final localTwoColumns = twoColumns || constraints.maxWidth >= 760;
+            final cardWidth = localTwoColumns
+                ? (constraints.maxWidth - (dense ? 8 : 12)) / 2
+                : constraints.maxWidth;
+            return Wrap(
+              spacing: dense ? 8 : 12,
+              runSpacing: dense ? 8 : 12,
+              children: [
+                for (var index = 0; index < options.length; index++)
+                  SizedBox(
+                    width: cardWidth,
+                    child: PeriodicPuzzleOptionCard(
+                      key: Key('puzzle-option-${options[index].id}'),
+                      option: options[index],
+                      clueType: tile.clue!.type,
+                      language: _language,
+                      prefix: String.fromCharCode(65 + index),
+                      isSelected: false,
+                      isIncorrect: _incorrectOptionId == options[index].id,
+                      forceTight: fitToViewport,
+                      onTap: () => _handleOptionTap(tile, options[index].id),
+                    ),
+                  ),
+              ],
+            );
+          },
+        );
+      }
+
+      return Expanded(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final localTwoColumns = twoColumns || constraints.maxWidth >= 760;
+            final crossAxisCount = localTwoColumns ? 2 : 1;
+            final spacing = dense ? 8.0 : 12.0;
+            final rows = (options.length / crossAxisCount).ceil().clamp(1, 8);
+            final totalSpacing = spacing * (rows - 1);
+            final cardHeight = ((constraints.maxHeight - totalSpacing) / rows)
+                .clamp(84.0, 170.0);
+
+            return GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: options.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: spacing,
+                mainAxisSpacing: spacing,
+                mainAxisExtent: cardHeight,
+              ),
+              itemBuilder: (context, index) {
+                return PeriodicPuzzleOptionCard(
+                  key: Key('puzzle-option-${options[index].id}'),
+                  option: options[index],
+                  clueType: tile.clue!.type,
+                  language: _language,
+                  prefix: String.fromCharCode(65 + index),
+                  isSelected: false,
+                  isIncorrect: _incorrectOptionId == options[index].id,
+                  forceTight: true,
+                  onTap: () => _handleOptionTap(tile, options[index].id),
+                );
+              },
+            );
+          },
+        ),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: fitToViewport ? MainAxisSize.max : MainAxisSize.min,
       children: [
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(18),
+          padding: EdgeInsets.all(dense ? 14 : 18),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [Color(0xFFF7FBFF), Color(0xFFEAF4FF)],
@@ -408,29 +478,29 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Wrap(
-                spacing: 10,
-                runSpacing: 10,
+                spacing: dense ? 8 : 10,
+                runSpacing: dense ? 8 : 10,
                 children: [
                   _StatusChip(label: _strings.fillThisTileLabel),
                   if (tile.clue != null)
                     _StatusChip(label: tile.clue!.labelFor(_language)),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: dense ? 8 : 12),
               Text(
                 tile.clue!.textFor(_language),
-                style: const TextStyle(
+                style: TextStyle(
                   color: Color(0xFF17334A),
-                  fontSize: 20,
+                  fontSize: dense ? 18 : 20,
                   fontWeight: FontWeight.w900,
                 ),
+                maxLines: dense ? 2 : null,
+                overflow: dense ? TextOverflow.ellipsis : TextOverflow.visible,
               ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
+              SizedBox(height: dense ? 8 : 12),
               Wrap(
-                spacing: 12,
-                runSpacing: 10,
+                spacing: dense ? 8 : 12,
+                runSpacing: dense ? 8 : 10,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   ValueListenableBuilder<bool>(
@@ -468,64 +538,62 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
                     icon: const Icon(Icons.lightbulb_outline),
                     label: Text(_strings.useHintLabel),
                   ),
-                  const SizedBox(width: 12),
-                  Text(
-                    _strings.hintsRemainingText(_boardProgress.hintsRemaining),
-                    style: const TextStyle(
-                      color: Color(0xFF35566F),
-                      fontWeight: FontWeight.w700,
+                  if (!dense)
+                    Text(
+                      _strings.hintsRemainingText(
+                        _boardProgress.hintsRemaining,
+                      ),
+                      style: const TextStyle(
+                        color: Color(0xFF35566F),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ],
           ),
         ),
-        if (_hintTileId != null && _hintTileId == tile.id) ...[
-          const SizedBox(height: 12),
+        if (hasHint && !fitToViewport) ...[
+          SizedBox(height: dense ? 8 : 12),
           _buildHintBox(tile),
         ],
-        if (_lastAnswerWasCorrect != null) ...[
-          const SizedBox(height: 12),
-          _buildFeedbackBanner(),
+        if (hasFeedback) ...[
+          SizedBox(height: dense ? 8 : 12),
+          fitToViewport ? _buildFeedbackPill() : _buildFeedbackBanner(),
         ],
-        const SizedBox(height: 16),
+        SizedBox(height: dense ? 10 : 16),
         Text(
           _strings.chooseCorrectElementLabel,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             color: const Color(0xFF17334A),
             fontWeight: FontWeight.w900,
+            fontSize: dense ? 20 : null,
           ),
         ),
-        const SizedBox(height: 12),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final cardWidth = constraints.maxWidth >= 760
-                ? (constraints.maxWidth - 12) / 2
-                : constraints.maxWidth;
-            return Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                for (var index = 0; index < options.length; index++)
-                  SizedBox(
-                    width: cardWidth,
-                    child: PeriodicPuzzleOptionCard(
-                      key: Key('puzzle-option-${options[index].id}'),
-                      option: options[index],
-                      clueType: tile.clue!.type,
-                      language: _language,
-                      prefix: String.fromCharCode(65 + index),
-                      isSelected: false,
-                      isIncorrect: _incorrectOptionId == options[index].id,
-                      onTap: () => _handleOptionTap(tile, options[index].id),
-                    ),
-                  ),
-              ],
-            );
-          },
-        ),
+        SizedBox(height: dense ? 8 : 12),
+        optionGrid(twoColumns: forceTwoColumns),
       ],
+    );
+  }
+
+  Widget _buildFeedbackPill() {
+    final isCorrect = _lastAnswerWasCorrect == true;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: isCorrect ? const Color(0xFFDDF7E8) : const Color(0xFFFFE7E7),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Text(
+        isCorrect ? _strings.correctLabel : _strings.almostTryAgainLabel,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: isCorrect ? const Color(0xFF14613B) : const Color(0xFF8A2020),
+          fontWeight: FontWeight.w900,
+        ),
+      ),
     );
   }
 
@@ -693,9 +761,6 @@ class _PeriodicPuzzleGamePageState extends State<PeriodicPuzzleGamePage> {
         _selectedTileId = tile.id;
       }
     });
-  }
-
-  void _openResult() {
     if (tile.id == selectedOptionId && next.isComplete) {
       _audioService.stop();
     } else {

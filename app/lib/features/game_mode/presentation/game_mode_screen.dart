@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_durations.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/responsive/app_radius.dart';
+import '../../../core/responsive/app_sizes.dart';
+import '../../../core/responsive/app_spacing.dart';
+import '../../../core/responsive/responsive.dart';
 import '../../../core/router/app_navigation.dart';
 import '../../../shared/decorations/app_gradients.dart';
 import '../../../shared/widgets/animated_cloud.dart';
@@ -70,7 +74,7 @@ class _GameModePageState extends State<GameModePage>
   Widget _buildLayout(BuildContext context, BoxConstraints bc) {
     final sw = bc.maxWidth;
     final h = bc.maxHeight;
-    final w = math.min(sw, 900.0);
+    final w = math.min(sw, Responsive.contentMaxWidth(context));
     final lh = math.min(h, w * 1.85);
 
     return Stack(
@@ -102,7 +106,9 @@ class _GameModePageState extends State<GameModePage>
               children: [
                 SizedBox(height: lh * 0.025),
                 Padding(
-                  padding: EdgeInsets.only(left: w * 0.04),
+                  padding: EdgeInsets.only(
+                    left: math.max(w * 0.04, AppSpacing.sm),
+                  ),
                   child: PillBackButton(
                     contentWidth: w,
                     foreground: const Color(0xFF3D6B80),
@@ -113,7 +119,7 @@ class _GameModePageState extends State<GameModePage>
                   child: Text(
                     AppStrings.chooseGame,
                     style: TextStyle(
-                      fontSize: math.min(36.0, w * 0.079),
+                      fontSize: math.min(AppSizes.titleFont, w * 0.079),
                       fontWeight: FontWeight.w900,
                       color: const Color(0xFF1A3A5C),
                     ),
@@ -124,7 +130,7 @@ class _GameModePageState extends State<GameModePage>
                   child: Text(
                     AppStrings.pickFunWay,
                     style: TextStyle(
-                      fontSize: math.min(17.0, w * 0.036),
+                      fontSize: math.min(AppSizes.subtitleFont, w * 0.036),
                       color: const Color(0xFF5A7A8A),
                       fontWeight: FontWeight.w500,
                     ),
@@ -268,14 +274,14 @@ class _ModeCard extends StatelessWidget {
       builder: (context, constraints) {
         final cw = constraints.maxWidth;
         final iconSz = math.min(74.0, cw * 0.20);
-        final pad = math.max(10.0, cw * 0.038);
+        final pad = math.max(AppSpacing.sm, cw * 0.038);
         return GestureDetector(
           onTap: onTap,
           child: Container(
             padding: EdgeInsets.all(pad),
             decoration: BoxDecoration(
               color: bg,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(AppRadius.lg),
               border: Border.all(color: border, width: 2.5),
               boxShadow: [
                 BoxShadow(
