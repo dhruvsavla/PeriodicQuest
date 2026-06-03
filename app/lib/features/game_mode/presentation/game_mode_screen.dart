@@ -16,7 +16,7 @@ import '../../../shared/widgets/twinkling_sparkle_field.dart';
 import '../../../shared/widgets/pill_back_button.dart';
 import '../../quiz/data/quiz_question_generator.dart';
 import '../../quiz/presentation/quiz_home_page.dart';
-import '../../adventure/presentation/adventure_screen.dart';
+import '../../adventure/presentation/adventure_home_screen.dart';
 import '../../explore/presentation/explore_screen.dart';
 import 'game_mode_icons.dart';
 
@@ -181,7 +181,7 @@ class _GameModePageState extends State<GameModePage>
                         subtitle: AppStrings.adventureModeSubtitle,
                         onTap: () => Navigator.push(
                           context,
-                          slideRoute(const AdventurePage()),
+                          slideRoute(const AdventureHomeScreen()),
                         ),
                       ),
                     ],
