@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:app/core/router/app_navigation.dart';
+import 'package:app/core/responsive/app_radius.dart';
 import 'package:app/features/quiz/models/quiz_language.dart';
 import 'package:app/features/quiz/presentation/widgets/quiz_language_toggle.dart';
 import 'package:app/features/quiz/presentation/widgets/quiz_responsive_layout.dart';
@@ -143,7 +145,7 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
                                     onTap: () =>
                                         Navigator.pop(context, _language),
                                   ),
-                                  const SizedBox(height: 12),
+                                  SizedBox(height: 12.h),
                                   Align(
                                     alignment: Alignment.centerRight,
                                     child: QuizLanguageToggle(
@@ -181,37 +183,37 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
                             );
                           },
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(18),
+                          padding: EdgeInsets.all(18.w),
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                               colors: [Color(0xFFFFF0A6), Color(0xFFCFF3FF)],
                             ),
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(AppRadius.xl),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 _strings.puzzleCompleteLabel,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Color(0xFF17334A),
-                                  fontSize: 24,
+                                  fontSize: 24.sp,
                                   fontWeight: FontWeight.w900,
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              SizedBox(height: 4.h),
                               Text(
                                 widget.board.titleFor(_language),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Color(0xFF35566F),
-                                  fontSize: 14,
+                                  fontSize: 14.sp,
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
-                              const SizedBox(height: 10),
+                              SizedBox(height: 10.h),
                               TweenAnimationBuilder<int>(
                                 tween: IntTween(
                                   begin: 0,
@@ -221,11 +223,11 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
                                 builder: (context, value, child) {
                                   return Text(
                                     '⭐' * value,
-                                    style: const TextStyle(fontSize: 30),
+                                    style: TextStyle(fontSize: 30.sp),
                                   );
                                 },
                               ),
-                              const SizedBox(height: 12),
+                              SizedBox(height: 12.h),
                               Wrap(
                                 spacing: 12,
                                 runSpacing: 12,
@@ -249,7 +251,7 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 14),
+                              SizedBox(height: 14.h),
                               Text(
                                 isFinalBoard
                                     ? _strings.greatJobLabel
@@ -263,13 +265,13 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
                           ),
                         ),
                         if (isFinalBoard) ...[
-                          const SizedBox(height: 18),
+                          SizedBox(height: 18.h),
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.all(20),
+                            padding: EdgeInsets.all(20.w),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.92),
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: BorderRadius.circular(AppRadius.xl),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,21 +284,21 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
                                         fontWeight: FontWeight.w900,
                                       ),
                                 ),
-                                const SizedBox(height: 12),
+                                SizedBox(height: 12.h),
                                 _ResultChip(
                                   label: _strings.totalTimeText(_elapsedTime),
                                 ),
-                                const SizedBox(height: 8),
+                                SizedBox(height: 8.h),
                                 _ResultChip(
                                   label:
                                       '${_strings.mistakesLabel}: $totalMistakes',
                                 ),
-                                const SizedBox(height: 8),
+                                SizedBox(height: 8.h),
                                 _ResultChip(
                                   label:
                                       '${_strings.hintsUsedLabel}: $totalHintsUsed',
                                 ),
-                                const SizedBox(height: 8),
+                                SizedBox(height: 8.h),
                                 _ResultChip(
                                   label:
                                       '${_strings.starsSummaryLabel}: $totalStars',
@@ -304,18 +306,18 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 18),
+                          SizedBox(height: 18.h),
                           if (qualifiesForBestTimes) ...[
                             _buildBestTimeEntryPanel(
                               totalStars: totalStars,
                               totalMistakes: totalMistakes,
                               totalHintsUsed: totalHintsUsed,
                             ),
-                            const SizedBox(height: 18),
+                            SizedBox(height: 18.h),
                           ],
                           _buildBestTimesCard(bestTimeEntries),
                         ],
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20.h),
                         if (widget.board.layer == PeriodicPuzzleLayer.groups &&
                             nextGroupBoard != null)
                           _PrimaryButton(
@@ -334,7 +336,7 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
                             label: _strings.playAgainLabel,
                             onTap: _playAgain,
                           ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         _SecondaryButton(
                           label: _strings.backToQuizMenuLabel,
                           onTap: () => Navigator.pushReplacement(
@@ -422,14 +424,14 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFFFFF1C7), Color(0xFFFFD68F)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(26.r),
         border: Border.all(color: const Color(0xFFE2B83D), width: 1.5),
       ),
       child: Column(
@@ -437,8 +439,8 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
         children: [
           Row(
             children: [
-              const Text('⏱️', style: TextStyle(fontSize: 28)),
-              const SizedBox(width: 10),
+              Text('⏱️', style: TextStyle(fontSize: 28.sp)),
+              SizedBox(width: 10.w),
               Expanded(
                 child: Text(
                   _strings.newBestTimeLabel,
@@ -450,7 +452,7 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14.h),
           TextField(
             controller: _nameController,
             maxLength: 12,
@@ -460,11 +462,11 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
               filled: true,
               fillColor: Colors.white.withValues(alpha: 0.95),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(AppRadius.lg),
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -474,9 +476,9 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
                 totalHintsUsed: totalHintsUsed,
               ),
               style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(50),
+                minimumSize: Size.fromHeight(50.h),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
                 ),
               ),
               child: Text(
@@ -493,10 +495,10 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
   Widget _buildBestTimesCard(List<PeriodicPuzzleBestTimeEntry> entries) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.93),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(28.r),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -508,7 +510,7 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
               fontWeight: FontWeight.w900,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           if (entries.isEmpty)
             const SizedBox.shrink()
           else
@@ -518,12 +520,12 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
                   Container(
                     width: double.infinity,
                     margin: EdgeInsets.only(
-                      bottom: index == entries.length - 1 ? 0 : 10,
+                      bottom: index == entries.length - 1 ? 0 : 10.h,
                     ),
-                    padding: const EdgeInsets.all(14),
+                    padding: EdgeInsets.all(14.w),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF6FBFF),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
                       border: Border.all(
                         color: const Color(0xFFD9EAF8),
                         width: 1.2,
@@ -532,7 +534,7 @@ class _PeriodicPuzzleResultPageState extends State<PeriodicPuzzleResultPage> {
                     child: Row(
                       children: [
                         _PuzzleRankBadge(rank: index + 1),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12.w),
                         Expanded(
                           child: Text(
                             entries[index].playerName,
@@ -591,9 +593,9 @@ class _PrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
-          minimumSize: const Size.fromHeight(54),
+          minimumSize: Size.fromHeight(54.h),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(AppRadius.lg),
           ),
         ),
         child: Text(label, style: const TextStyle(fontWeight: FontWeight.w900)),
@@ -615,9 +617,9 @@ class _SecondaryButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
-          minimumSize: const Size.fromHeight(54),
+          minimumSize: Size.fromHeight(54.h),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(AppRadius.lg),
           ),
         ),
         child: Text(label, style: const TextStyle(fontWeight: FontWeight.w900)),
@@ -634,10 +636,10 @@ class _ResultChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.82),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Text(
         label,
@@ -665,16 +667,16 @@ class _PuzzleRankBadge extends StatelessWidget {
     };
 
     return Container(
-      width: 40,
-      height: 40,
+      width: 40.w,
+      height: 40.w,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: const Color(0xFFE7F3FF),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
       ),
       child: Text(
         label,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+        style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w900),
       ),
     );
   }

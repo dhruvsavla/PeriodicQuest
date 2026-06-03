@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:app/core/router/app_navigation.dart';
 import 'package:app/features/quiz/models/quiz_language.dart';
@@ -100,7 +101,7 @@ class _PeriodicPuzzleHomePageState extends State<PeriodicPuzzleHomePage> {
                                     foreground: const Color(0xFF3D6B80),
                                     label: _strings.backToQuizMenuLabel,
                                   ),
-                                  const SizedBox(height: 12),
+                                  SizedBox(height: 12.h),
                                   Align(
                                     alignment: Alignment.centerRight,
                                     child: QuizLanguageToggle(
@@ -137,7 +138,7 @@ class _PeriodicPuzzleHomePageState extends State<PeriodicPuzzleHomePage> {
                             );
                           },
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                         PeriodicPuzzleLayerCard(
                           title: _strings.starterLayerTitle,
                           subtitle: _strings.starterLayerSubtitle,
@@ -172,7 +173,7 @@ class _PeriodicPuzzleHomePageState extends State<PeriodicPuzzleHomePage> {
                           stars: _layerStars(starterBoards),
                           onTap: () => _openLayer(PeriodicPuzzleLayer.starter),
                         ),
-                        const SizedBox(height: 18),
+                        SizedBox(height: 18.h),
                         PeriodicPuzzleLayerCard(
                           title: _strings.groupsLayerTitle,
                           subtitle: _strings.groupsLayerSubtitle,
@@ -207,7 +208,7 @@ class _PeriodicPuzzleHomePageState extends State<PeriodicPuzzleHomePage> {
                           ),
                           onTap: () => _openLayer(PeriodicPuzzleLayer.groups),
                         ),
-                        const SizedBox(height: 18),
+                        SizedBox(height: 18.h),
                         PeriodicPuzzleLayerCard(
                           title: _strings.mixedLayerTitle,
                           subtitle: _strings.mixedLayerSubtitle,

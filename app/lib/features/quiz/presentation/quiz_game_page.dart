@@ -3,6 +3,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'package:app/core/audio/element_audio_service.dart';
+import 'package:app/core/responsive/app_radius.dart';
+import 'package:app/core/responsive/app_sizes.dart';
+import 'package:app/core/responsive/app_spacing.dart';
+import 'package:app/core/responsive/responsive.dart';
 import 'package:app/core/router/app_navigation.dart';
 import 'package:app/features/quiz/data/quiz_leaderboard_repository.dart';
 import 'package:app/features/quiz/data/quiz_question_generator.dart';
@@ -112,144 +116,141 @@ class _QuizGamePageState extends State<QuizGamePage> {
         height: double.infinity,
         decoration: const BoxDecoration(gradient: AppGradients.skyBlue),
         child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final layout = QuizResponsiveLayout.resolve(
-                context,
-                constraints,
-                maxContentWidth: 980,
-              );
-
-              return Align(
-                alignment: Alignment.topCenter,
-                child: SizedBox(
-                  width: layout.contentWidth,
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(
-                      layout.horizontalPadding,
-                      layout.topPadding,
-                      layout.horizontalPadding,
-                      layout.bottomPadding,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildTopBar(context, layout),
-                        const SizedBox(height: 18),
-                        _buildHeroHeader(progress),
-                        const SizedBox(height: 18),
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 280),
-                          switchInCurve: Curves.easeOutCubic,
-                          transitionBuilder: (child, animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: SlideTransition(
-                                position: Tween<Offset>(
-                                  begin: const Offset(0.03, 0),
-                                  end: Offset.zero,
-                                ).animate(animation),
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: _buildQuestionPanel(
-                            context,
-                            key: ValueKey(
-                              '${_currentQuestion.id}-${_language.name}',
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 240),
-                          transitionBuilder: (child, animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: SlideTransition(
-                                position: Tween<Offset>(
-                                  begin: const Offset(0, -0.05),
-                                  end: Offset.zero,
-                                ).animate(animation),
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: _hasHintForCurrentQuestion
-                              ? _buildHintBox(
-                                  key: ValueKey('hint-${_currentQuestion.id}'),
-                                )
-                              : const SizedBox.shrink(key: ValueKey('no-hint')),
-                        ),
-                        if (_hasHintForCurrentQuestion)
-                          const SizedBox(height: 16),
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 260),
-                          switchInCurve: Curves.easeOutCubic,
-                          transitionBuilder: (child, animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: SlideTransition(
-                                position: Tween<Offset>(
-                                  begin: const Offset(0, 0.03),
-                                  end: Offset.zero,
-                                ).animate(animation),
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: _buildOptionsPanel(
-                            context,
-                            key: ValueKey(
-                              'options-${_currentQuestion.id}-${_language.name}',
-                            ),
-                          ),
-                        ),
-                        if (_isQuickQuiz && _feedbackVisible) ...[
-                          const SizedBox(height: 16),
-                          _buildFeedbackBox(),
-                        ],
-                        const SizedBox(height: 18),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _canAdvance ? _advanceQuiz : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: colorScheme.primary,
-                              foregroundColor: colorScheme.onPrimary,
-                              minimumSize: Size.fromHeight(
-                                layout.compactCard ? 52 : 56,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                            ),
-                            child: Text(
-                              _isLastQuestion
-                                  ? _strings.finishLabel
-                                  : _strings.nextLabel,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w900,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: Responsive.contentMaxWidth(context),
+              ),
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  Responsive.horizontalPadding(context),
+                  AppSpacing.md,
+                  Responsive.horizontalPadding(context),
+                  AppSpacing.lg,
                 ),
-              );
-            },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTopBar(context),
+                    SizedBox(height: AppSpacing.md),
+                    _buildHeroHeader(progress),
+                    SizedBox(height: AppSpacing.md),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 280),
+                      switchInCurve: Curves.easeOutCubic,
+                      transitionBuilder: (child, animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(
+                            position: Tween<Offset>(
+                              begin: const Offset(0.03, 0),
+                              end: Offset.zero,
+                            ).animate(animation),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: _buildQuestionPanel(
+                        context,
+                        key: ValueKey(
+                          '${_currentQuestion.id}-${_language.name}',
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: AppSpacing.md),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 240),
+                      transitionBuilder: (child, animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(
+                            position: Tween<Offset>(
+                              begin: const Offset(0, -0.05),
+                              end: Offset.zero,
+                            ).animate(animation),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: _hasHintForCurrentQuestion
+                          ? _buildHintBox(
+                              key: ValueKey('hint-${_currentQuestion.id}'),
+                            )
+                          : const SizedBox.shrink(key: ValueKey('no-hint')),
+                    ),
+                    if (_hasHintForCurrentQuestion)
+                      SizedBox(height: AppSpacing.md),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 260),
+                      switchInCurve: Curves.easeOutCubic,
+                      transitionBuilder: (child, animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(
+                            position: Tween<Offset>(
+                              begin: const Offset(0, 0.03),
+                              end: Offset.zero,
+                            ).animate(animation),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: _buildOptionsPanel(
+                        context,
+                        key: ValueKey(
+                          'options-${_currentQuestion.id}-${_language.name}',
+                        ),
+                      ),
+                    ),
+                    if (_isQuickQuiz && _feedbackVisible) ...[
+                      SizedBox(height: AppSpacing.md),
+                      _buildFeedbackBox(),
+                    ],
+                    SizedBox(height: AppSpacing.md),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _canAdvance ? _advanceQuiz : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
+                          minimumSize: Size.fromHeight(
+                            AppSizes.largeButtonHeight,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.lg),
+                          ),
+                        ),
+                        child: Text(
+                          _isLastQuestion
+                              ? _strings.finishLabel
+                              : _strings.nextLabel,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTopBar(BuildContext context, QuizResponsiveLayout layout) {
+  Widget _buildTopBar(BuildContext context) {
     return LayoutBuilder(
-      builder: (context, _) {
+      builder: (context, constraints) {
+        final layout = QuizResponsiveLayout.resolve(
+          context,
+          constraints,
+          maxContentWidth: 980,
+        );
+
         if (layout.stackTopBar) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,

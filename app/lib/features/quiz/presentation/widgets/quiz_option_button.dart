@@ -21,6 +21,7 @@ class QuizOptionButton extends StatelessWidget {
     this.isIncorrect = false,
     this.isDisabled = false,
     this.density = QuizOptionButtonDensity.regular,
+    this.forceTight = false,
   });
 
   final QuizAnswerOption option;
@@ -33,6 +34,7 @@ class QuizOptionButton extends StatelessWidget {
   final bool isIncorrect;
   final bool isDisabled;
   final QuizOptionButtonDensity density;
+  final bool forceTight;
 
   @override
   Widget build(BuildContext context) {
@@ -41,11 +43,13 @@ class QuizOptionButton extends StatelessWidget {
     final card = LayoutBuilder(
       builder: (context, constraints) {
         final compact =
+            forceTight ||
             density == QuizOptionButtonDensity.compact ||
             constraints.maxWidth < 250;
         final tight =
-            density == QuizOptionButtonDensity.compact &&
-            (constraints.maxWidth <= 420 || constraints.maxHeight < 190);
+            forceTight ||
+            (density == QuizOptionButtonDensity.compact &&
+                (constraints.maxWidth <= 420 || constraints.maxHeight < 190));
         final radius = tight ? 18.0 : (compact ? 22.0 : 28.0);
 
         return _AnimatedShake(
@@ -62,7 +66,7 @@ class QuizOptionButton extends StatelessWidget {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 240),
                 curve: Curves.easeOutCubic,
-                padding: EdgeInsets.all(tight ? 10 : (compact ? 14 : 18)),
+                padding: EdgeInsets.all(tight ? 8 : (compact ? 14 : 18)),
                 decoration: BoxDecoration(
                   gradient: _gradientForState(style),
                   borderRadius: BorderRadius.circular(radius),
@@ -208,10 +212,10 @@ class QuizOptionButton extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: tight ? 6 : (compact ? 8 : 18)),
+          SizedBox(height: tight ? 4 : (compact ? 8 : 18)),
           Padding(
             padding: EdgeInsets.symmetric(
-              vertical: tight ? 2 : (compact ? 4 : 12),
+              vertical: tight ? 1 : (compact ? 4 : 12),
             ),
             child: Center(
               child: Text(
@@ -219,42 +223,44 @@ class QuizOptionButton extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: statusColor,
-                  fontSize: tight ? 20 : (compact ? 24 : 40),
+                  fontSize: tight ? 18 : (compact ? 24 : 40),
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.2,
                 ),
               ),
             ),
           ),
-          Align(
-            alignment: Alignment.center,
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: tight ? 6 : (compact ? 8 : 12),
-                vertical: tight ? 3 : (compact ? 4 : 6),
-              ),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.7),
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                language == QuizLanguage.spanish ? 'Símbolo' : 'Symbol',
-                style: TextStyle(
-                  color: statusColor,
-                  fontWeight: FontWeight.w800,
-                  fontSize: tight ? 10 : (compact ? 11 : null),
+          if (!tight)
+            Align(
+              alignment: Alignment.center,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: tight ? 6 : (compact ? 8 : 12),
+                  vertical: tight ? 3 : (compact ? 4 : 6),
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  language == QuizLanguage.spanish ? 'Símbolo' : 'Symbol',
+                  style: TextStyle(
+                    color: statusColor,
+                    fontWeight: FontWeight.w800,
+                    fontSize: tight ? 10 : (compact ? 11 : null),
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       );
     }
 
     final showSymbol =
-        questionType == QuizQuestionType.atomicNumber ||
-        questionType == QuizQuestionType.realWorldUse;
-    final showCategory = true;
+        !tight &&
+        (questionType == QuizQuestionType.atomicNumber ||
+            questionType == QuizQuestionType.realWorldUse);
+    final showCategory = !tight;
     final showAtomicNumber = questionType == QuizQuestionType.realWorldUse;
 
     return Column(
@@ -284,7 +290,7 @@ class QuizOptionButton extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: tight ? 8 : (compact ? 10 : 16)),
+        SizedBox(height: tight ? 6 : (compact ? 10 : 16)),
         if (showSymbol && option.elementSymbol != null)
           Container(
             width: tight ? 38 : (compact ? 48 : 68),
@@ -314,11 +320,11 @@ class QuizOptionButton extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: statusColor,
-            fontSize: tight ? 13 : (compact ? 16 : 22),
+            fontSize: tight ? 12 : (compact ? 16 : 22),
             fontWeight: FontWeight.w900,
           ),
         ),
-        SizedBox(height: tight ? 6 : (compact ? 8 : 12)),
+        SizedBox(height: tight ? 4 : (compact ? 8 : 12)),
         Wrap(
           spacing: tight ? 4 : (compact ? 6 : 8),
           runSpacing: tight ? 4 : (compact ? 6 : 8),

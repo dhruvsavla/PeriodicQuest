@@ -1,9 +1,12 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../core/constants/app_durations.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/responsive/app_spacing.dart';
+import '../../../core/responsive/responsive.dart';
 import '../../../domain/elements/chemical_element.dart';
 import '../data/element_catalog_repository.dart';
 import '../../../shared/decorations/app_gradients.dart';
@@ -70,8 +73,9 @@ class _AllElementsPageState extends State<AllElementsPage>
   Widget _buildLayout(BuildContext context, BoxConstraints bc) {
     final w = bc.maxWidth;
     final h = bc.maxHeight;
-    final cols = (w / 68).floor().clamp(5, 10);
-    final cardW = w / cols;
+    final cols = Responsive.gridColumns(context);
+    final contentWidth = math.min(w, Responsive.contentMaxWidth(context));
+    final cardW = contentWidth / cols;
 
     return Stack(
       children: [
@@ -91,80 +95,95 @@ class _AllElementsPageState extends State<AllElementsPage>
           phase: 0.5,
           amp: w * 0.03,
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // ── Header ────────────────────────────────────────────────────
-            Padding(
-              padding: EdgeInsets.fromLTRB(w * 0.04, h * 0.018, w * 0.04, 0),
-              child: Row(
-                children: [
-                  PillBackButton(
-                    contentWidth: w,
-                    foreground: const Color(0xFF3D3070),
+        Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: contentWidth),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // ── Header ────────────────────────────────────────────────────
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    Responsive.horizontalPadding(context),
+                    h * 0.018,
+                    Responsive.horizontalPadding(context),
+                    0,
                   ),
-                  Expanded(
-                    child: Text(
-                      widget.title ?? AppStrings.allElements,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: math.min(30.0, w * 0.072),
-                        fontWeight: FontWeight.w900,
-                        color: const Color(0xFF1A1A4A),
+                  child: Row(
+                    children: [
+                      PillBackButton(
+                        contentWidth: w,
+                        foreground: const Color(0xFF3D3070),
                       ),
-                    ),
-                  ),
-                  // Mirror spacer so title stays centered
-                  SizedBox(width: math.max(60.0, w * 0.18)),
-                ],
-              ),
-            ),
-            SizedBox(height: h * 0.012),
-            // ── Grid ──────────────────────────────────────────────────────
-            Expanded(
-              child: AnimatedBuilder(
-                animation: _gridCtrl,
-                builder: (context, ignored) {
-                  return GridView.builder(
-                    padding: EdgeInsets.only(bottom: h * 0.02),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: cols,
-                      childAspectRatio: 0.82,
-                    ),
-                    itemCount: _elements.length,
-                    itemBuilder: (context, i) {
-                      final e = _elements[i];
-                      final delay = (i % (cols * 5)) * 0.007;
-                      final t = math.max(
-                        0.0,
-                        (_gridCtrl.value - delay) / (1.0 - delay),
-                      );
-                      final curved = Curves.easeOutBack.transform(
-                        t.clamp(0.0, 1.0),
-                      );
-                      return Opacity(
-                        opacity: curved.clamp(0.0, 1.0),
-                        child: Transform.scale(
-                          scale: 0.4 + 0.6 * curved,
-                          child: ElementGridTile(
-                            elem: e,
-                            cardW: cardW,
-                            onTap: () => _showDetail(context, e, w),
+                      Expanded(
+                        child: Text(
+                          widget.title ?? AppStrings.allElements,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: math.min(30.sp, contentWidth * 0.072),
+                            fontWeight: FontWeight.w900,
+                            color: const Color(0xFF1A1A4A),
                           ),
                         ),
+                      ),
+                      // Mirror spacer so title stays centered
+                      SizedBox(width: math.max(60.w, contentWidth * 0.18)),
+                    ],
+                  ),
+                ),
+                SizedBox(height: h * 0.012),
+                // ── Grid ──────────────────────────────────────────────────────
+                Expanded(
+                  child: AnimatedBuilder(
+                    animation: _gridCtrl,
+                    builder: (context, ignored) {
+                      return GridView.builder(
+                        padding: EdgeInsets.fromLTRB(
+                          AppSpacing.xs,
+                          0,
+                          AppSpacing.xs,
+                          h * 0.02,
+                        ),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: cols,
+                          childAspectRatio: 0.82,
+                        ),
+                        itemCount: _elements.length,
+                        itemBuilder: (context, i) {
+                          final e = _elements[i];
+                          final delay = (i % (cols * 5)) * 0.007;
+                          final t = math.max(
+                            0.0,
+                            (_gridCtrl.value - delay) / (1.0 - delay),
+                          );
+                          final curved = Curves.easeOutBack.transform(
+                            t.clamp(0.0, 1.0),
+                          );
+                          return Opacity(
+                            opacity: curved.clamp(0.0, 1.0),
+                            child: Transform.scale(
+                              scale: 0.4 + 0.6 * curved,
+                              child: ElementGridTile(
+                                elem: e,
+                                cardW: cardW,
+                                onTap: () => _showDetail(context, e),
+                              ),
+                            ),
+                          );
+                        },
                       );
                     },
-                  );
-                },
-              ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ],
     );
   }
 
-  void _showDetail(BuildContext context, ChemicalElement e, double w) {
+  void _showDetail(BuildContext context, ChemicalElement e) {
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -178,9 +197,7 @@ class _AllElementsPageState extends State<AllElementsPage>
           scale: curved,
           child: FadeTransition(
             opacity: anim,
-            child: Center(
-              child: ElementDetailSheet(elem: e, screenW: w),
-            ),
+            child: Center(child: ElementDetailSheet(elem: e)),
           ),
         );
       },

@@ -15,6 +15,7 @@ class PeriodicPuzzleOptionCard extends StatelessWidget {
     required this.onTap,
     this.isSelected = false,
     this.isIncorrect = false,
+    this.forceTight = false,
   });
 
   final QuizAnswerOption option;
@@ -24,6 +25,7 @@ class PeriodicPuzzleOptionCard extends StatelessWidget {
   final VoidCallback onTap;
   final bool isSelected;
   final bool isIncorrect;
+  final bool forceTight;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +38,7 @@ class PeriodicPuzzleOptionCard extends StatelessWidget {
       isSelected: isSelected,
       isIncorrect: isIncorrect,
       density: QuizOptionButtonDensity.compact,
+      forceTight: forceTight,
     );
   }
 

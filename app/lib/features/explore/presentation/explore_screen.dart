@@ -10,6 +10,8 @@ import '../../../shared/widgets/animated_cloud.dart';
 import '../../../shared/widgets/sparkle_band.dart';
 import '../../../shared/widgets/twinkling_sparkle_field.dart';
 import '../../../shared/widgets/pill_back_button.dart';
+import '../../element_of_the_day/data/element_of_the_day_repository.dart';
+import '../../element_of_the_day/presentation/element_of_the_day_screen.dart';
 import '../../elements_catalog/presentation/all_elements_screen.dart';
 import 'explore_category_icons.dart';
 import 'explore_kawaii_star.dart';
@@ -25,6 +27,7 @@ class ExplorePage extends StatefulWidget {
 
 class _ExplorePageState extends State<ExplorePage>
     with TickerProviderStateMixin {
+  static const _elementOfTheDayRepository = ElementOfTheDayRepository();
   late final AnimationController _cloudCtrl;
   late final AnimationController _sparkleCtrl;
   late final AnimationController _cardCtrl;
@@ -357,90 +360,102 @@ class _ExplorePageState extends State<ExplorePage>
       },
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: pad),
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF0C8),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFE8C870), width: 2),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFE8C870).withValues(alpha: 0.4),
-                    blurRadius: 12,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: math.min(62.0, w * 0.16),
-                    height: math.min(62.0, w * 0.16),
-                    child: const CustomPaint(painter: KawaiiStarPainter()),
-                  ),
-                  SizedBox(width: math.max(10.0, w * 0.035)),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppStrings.elementOfTheDay,
-                          style: TextStyle(
-                            fontSize: math.min(18.0, w * 0.048),
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF1A1A4A),
-                          ),
-                        ),
-                        SizedBox(height: w * 0.010),
-                        Text(
-                          AppStrings.elementOfTheDayBody,
-                          style: TextStyle(
-                            fontSize: math.min(12.5, w * 0.034),
-                            color: const Color(0xFF5A4A20),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+        child: GestureDetector(
+          onTap: () => Navigator.push(
+            context,
+            slideRoute(
+              ElementOfTheDayScreen(
+                featuredElement: _elementOfTheDayRepository.elementForDate(
+                  DateTime.now(),
+                ),
               ),
             ),
-            // NEW TODAY badge
-            Positioned(
-              top: -10,
-              right: 12,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
+          ),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF8C30),
-                  borderRadius: BorderRadius.circular(12),
+                  color: const Color(0xFFFFF0C8),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFE8C870), width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFDD6800).withValues(alpha: 0.45),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
+                      color: const Color(0xFFE8C870).withValues(alpha: 0.4),
+                      blurRadius: 12,
+                      offset: const Offset(0, 5),
                     ),
                   ],
                 ),
-                child: Text(
-                  AppStrings.newTodayBadge,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    letterSpacing: 0.5,
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: math.min(62.0, w * 0.16),
+                      height: math.min(62.0, w * 0.16),
+                      child: const CustomPaint(painter: KawaiiStarPainter()),
+                    ),
+                    SizedBox(width: math.max(10.0, w * 0.035)),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            AppStrings.elementOfTheDay,
+                            style: TextStyle(
+                              fontSize: math.min(18.0, w * 0.048),
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF1A1A4A),
+                            ),
+                          ),
+                          SizedBox(height: w * 0.010),
+                          Text(
+                            AppStrings.elementOfTheDayBody,
+                            style: TextStyle(
+                              fontSize: math.min(12.5, w * 0.034),
+                              color: const Color(0xFF5A4A20),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // NEW TODAY badge
+              Positioned(
+                top: -10,
+                right: 12,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF8C30),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFDD6800).withValues(alpha: 0.45),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    AppStrings.newTodayBadge,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
